@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import puppeteer from "puppeteer";
+import OpenAI from "openai";
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -37,7 +43,7 @@ export async function GET(req: Request) {
     // Visit the resolved long URL
     await page.goto(longUrl, { waitUntil: "networkidle2" });
 
-    // Extract place name from URL
+    // Extract place name from URL for analysis only
     const placeNameMatch = longUrl.match(/place\/([^/@]+)/);
     if (!placeNameMatch) {
       await browser.close();
@@ -47,14 +53,11 @@ export async function GET(req: Request) {
       );
     }
 
-    const placeName = decodeURIComponent(placeNameMatch[1]);
+    const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
-    // Wait for and click the reviews button
-    const reviewButtonText = `對「${placeName}」的評論`;
-    await page.waitForSelector(
-      `button[role="tab"][aria-label="${reviewButtonText}"]`
-    );
-    await page.click(`button[role="tab"][aria-label="${reviewButtonText}"]`);
+    // Wait for and click the reviews button using wildcard
+    await page.waitForSelector('button[role="tab"][aria-label*="的評論"]');
+    await page.click('button[role="tab"][aria-label*="的評論"]');
 
     // Wait for and click the sort button
     await page.waitForSelector(
@@ -83,7 +86,7 @@ export async function GET(req: Request) {
       const mainDiv = document.querySelector('div[role="main"]');
       const container = mainDiv?.children[1]; // Select the second child element
 
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 5; i++) {
         // Scroll 10 times or adjust as needed
         if (container) {
           container.scrollTo(0, container.scrollHeight);
@@ -136,15 +139,40 @@ export async function GET(req: Request) {
             rating,
             time,
             content,
-            photos: photos.length > 0 ? photos : [],
+            photoCount: photos.length,
           };
         });
     });
 
     await browser.close();
-    return NextResponse.json({ reviews });
+
+    // After getting reviews, analyze them with ChatGPT
+    const analysisPrompt = `分析 Google Maps 上「${placeName}」的評論是否有洗評論的可能性。請考慮發文時間、寫作風格、照片數量、評分模式和內容品質。
+        Reviews: ${JSON.stringify(reviews, null, 2)}
+
+        請用中文回覆，並以下列 JSON 格式回應:
+        {
+          "placeName": string,
+          "suspicionScore": number 0-100,
+          "findings": string[],
+          "recommendation": string
+        }`;
+
+    const completion = await openai.chat.completions.create({
+      messages: [{ role: "user", content: analysisPrompt }],
+      model: "gpt-4o-mini",
+      response_format: { type: "json_object" },
+    });
+
+    const analysis = JSON.parse(completion.choices[0].message.content || "");
+
+    // Return both reviews and analysis
+    return NextResponse.json({
+      reviews,
+      analysis,
+    });
   } catch (error) {
-    console.error("Error during scraping:", error);
+    console.error("Error during processing:", error);
     return NextResponse.json(
       { error: "Failed to process the URL" },
       { status: 500 }
