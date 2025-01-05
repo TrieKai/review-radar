@@ -118,11 +118,13 @@ export async function GET(req: Request) {
           const rating =
             ratingElement?.getAttribute("aria-label") || "No rating";
 
-          const time =
-            review.querySelector('span[class="rsqaWe"]')?.textContent || "";
+          const timeElement = ratingElement?.nextElementSibling;
+          const time = timeElement?.textContent || "";
 
-          const content =
-            review.querySelector('span[class="wiI7pd"]')?.textContent || "";
+          const contentWrapperElement = review.querySelector(
+            `div[id="${reviewId}"]`
+          );
+          const content = contentWrapperElement?.firstChild?.textContent || "";
 
           // Get photos from the image buttons
           const photoButtons = review.querySelectorAll(
