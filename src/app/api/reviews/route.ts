@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 import OpenAI from "openai";
 
 // Initialize OpenAI client
@@ -34,7 +34,12 @@ export async function GET(req: Request) {
     }
 
     // Step 2: Launch Puppeteer and scrape reviews from target URL
+    const executablePath =
+      process.env.NODE_ENV === "production"
+        ? "/usr/bin/google-chrome-stable"
+        : (await import("puppeteer")).executablePath();
     const browser = await puppeteer.launch({
+      executablePath,
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
