@@ -97,28 +97,30 @@ export async function GET(req: Request) {
 
     // Step 3: Scrape review data
     const reviews = await page.evaluate(() => {
-      // Find all review containers by their semantic structure
       const reviewElements = document.querySelectorAll("div[aria-label]");
       return Array.from(reviewElements)
         .filter((review) => review.hasAttribute("data-review-id"))
         .map((review) => {
-          // Get reviewer name from the profile link
-          const userName =
-            review
-              .querySelector('button[aria-label$="的相片"]')
-              ?.getAttribute("aria-label")
-              ?.replace("的相片", "") || "Anonymous";
+          // Find user info button by data-review-id
+          const reviewId = review.getAttribute("data-review-id");
+          const userInfoButton = review.querySelectorAll(
+            `button[data-review-id="${reviewId}"]`
+          )[1];
 
-          // Get rating from the star display element
+          // Get all text content divs inside the button
+          const infoDivs = userInfoButton?.querySelectorAll("div") || [];
+          const [nameDiv, guideInfoDiv] = Array.from(infoDivs);
+
+          const userName = nameDiv?.textContent || "Anonymous";
+          const guideInfo = guideInfoDiv?.textContent || ""; // Keep the original guide info text
+
           const ratingElement = review.querySelector('span[role="img"]');
           const rating =
             ratingElement?.getAttribute("aria-label") || "No rating";
 
-          // Get timestamp from the review metadata
           const time =
             review.querySelector('span[class="rsqaWe"]')?.textContent || "";
 
-          // Get review content from the text container
           const content =
             review.querySelector('span[class="wiI7pd"]')?.textContent || "";
 
@@ -136,21 +138,29 @@ export async function GET(req: Request) {
 
           return {
             user: userName,
-            rating,
+            userInfo: guideInfo, // Now just a string like "在地嚮導 · 19 則評論 · 930 張相片"
+            rating: rating.replace(/\D/g, ""),
             time,
             content,
-            photoCount: photos.length,
+            photos: photos.length > 0 ? photos : [],
           };
         });
     });
 
     await browser.close();
 
+    const filteredReviews = reviews.map((review) => ({
+      userInfo: review.userInfo,
+      rating: review.rating,
+      time: review.time,
+      content: review.content,
+      photoCount: review.photos.length,
+    }));
     // After getting reviews, analyze them with ChatGPT
-    const analysisPrompt = `分析 Google Maps 上「${placeName}」的評論是否有洗評論的可能性。請考慮發文時間、寫作風格、照片數量、評分模式和內容品質。
-        Reviews: ${JSON.stringify(reviews, null, 2)}
+    const analysisPrompt = `分析Google Maps上「${placeName}」的評論是否有洗評論的可能性。以下是該地點依序由新到舊的評論資料，請考慮發文時間、寫作風格、照片數量、評分模式、使用者資訊（是否為在地嚮導、過去評論的數量和過去上傳的照片數量）和內容品質。
+        Reviews: ${JSON.stringify(filteredReviews)}
 
-        請用中文回覆，並以下列 JSON 格式回應:
+        Reply in JSON:
         {
           "placeName": string,
           "suspicionScore": number 0-100,
@@ -162,6 +172,7 @@ export async function GET(req: Request) {
       messages: [{ role: "user", content: analysisPrompt }],
       model: "gpt-4o-mini",
       response_format: { type: "json_object" },
+      temperature: 0,
     });
 
     const analysis = JSON.parse(completion.choices[0].message.content || "");
