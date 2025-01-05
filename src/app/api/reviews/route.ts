@@ -195,6 +195,7 @@ export async function GET(req: Request) {
 
     // Return both reviews and analysis
     return NextResponse.json({
+      placeName,
       reviews,
       analysis,
     });
