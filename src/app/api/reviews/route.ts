@@ -83,27 +83,35 @@ export async function GET(req: Request) {
 
     const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
-    // Wait for and click the reviews button using wildcard
+    // Wait for and click the reviews button
     await page.waitForSelector(
+      'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]',
+      { timeout: 5000 }
+    );
+    const reviewsButton = await page.$(
       'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]'
     );
-    await page.click(
-      'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]'
-    );
+    if (!reviewsButton) throw new Error("Reviews button not found");
+    await reviewsButton.evaluate((b) => b.click());
 
     // Wait for and click the sort button
     await page.waitForSelector(
+      'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]',
+      { timeout: 5000 }
+    );
+    const sortButton = await page.$(
       'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]'
     );
-    await page.click(
-      'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]'
-    );
+    if (!sortButton) throw new Error("Sort button not found");
+    await sortButton.evaluate((b) => b.click());
 
     // Wait for sort menu and click "Most Recent" option
-    await page.waitForSelector('div[role="menu"][id="action-menu"]');
+    await page.waitForSelector('div[role="menu"][id="action-menu"]', {
+      timeout: 5000,
+    });
     await page.evaluate(() => {
       const menuItems = document.querySelectorAll(
-        'div[role="menu"][id="action-menu"] div'
+        'div[role="menu"][id="action-menu"] div[role="menuitemradio"]'
       );
       for (const item of menuItems) {
         if (
@@ -111,9 +119,10 @@ export async function GET(req: Request) {
           item.textContent?.includes("Newest")
         ) {
           (item as HTMLElement).click();
-          break;
+          return true;
         }
       }
+      return false;
     });
 
     // Scroll to load more reviews
