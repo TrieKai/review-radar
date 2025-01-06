@@ -8,6 +8,19 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const getChromePath = () => {
+  switch (process.platform) {
+    case "win32":
+      return "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+    case "darwin":
+      return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+    case "linux":
+      return "/usr/bin/google-chrome";
+    default:
+      return "/usr/bin/google-chrome";
+  }
+};
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const shortUrl = searchParams.get("url"); // Input short URL
@@ -35,17 +48,24 @@ export async function GET(req: Request) {
     }
 
     // Step 2: Launch Puppeteer and scrape reviews from target URL
-    const browser = await puppeteer.launch({
-      args: [
-        ...chromium.args,
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--lang=zh-TW",
-      ],
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-    });
+    const browser = await puppeteer.launch(
+      process.env.NODE_ENV === "development"
+        ? {
+            headless: true,
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+            executablePath: getChromePath(),
+          }
+        : {
+            args: [
+              ...chromium.args,
+              "--no-sandbox",
+              "--disable-setuid-sandbox",
+            ],
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+          }
+    );
     const page = await browser.newPage();
 
     // Visit the resolved long URL
@@ -64,14 +84,20 @@ export async function GET(req: Request) {
     const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
     // Wait for and click the reviews button using wildcard
-    await page.waitForSelector('button[role="tab"][aria-label*="的評論"]');
-    await page.click('button[role="tab"][aria-label*="的評論"]');
+    await page.waitForSelector(
+      'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]'
+    );
+    await page.click(
+      'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]'
+    );
 
     // Wait for and click the sort button
     await page.waitForSelector(
-      'button[aria-label="排序評論"][data-value="排序"]'
+      'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]'
     );
-    await page.click('button[aria-label="排序評論"][data-value="排序"]');
+    await page.click(
+      'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]'
+    );
 
     // Wait for sort menu and click "Most Recent" option
     await page.waitForSelector('div[role="menu"][id="action-menu"]');
@@ -80,7 +106,10 @@ export async function GET(req: Request) {
         'div[role="menu"][id="action-menu"] div'
       );
       for (const item of menuItems) {
-        if (item.textContent?.includes("最新")) {
+        if (
+          item.textContent?.includes("最新") ||
+          item.textContent?.includes("Newest")
+        ) {
           (item as HTMLElement).click();
           break;
         }
@@ -136,7 +165,7 @@ export async function GET(req: Request) {
 
           // Get photos from the image buttons
           const photoButtons = review.querySelectorAll(
-            'button[aria-label*="相片"]'
+            'button[aria-label*="相片"], button[aria-label*="Photo"]'
           );
           const photos = Array.from(photoButtons)
             .map((button) => {
