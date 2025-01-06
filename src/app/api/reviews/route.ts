@@ -93,7 +93,7 @@ export async function GET(req: Request) {
         // Scroll 10 times or adjust as needed
         if (container) {
           container.scrollTo(0, container.scrollHeight);
-          await delay(1000); // Wait 1 second for new content to load
+          await delay(500); // Wait 1 second for new content to load
         }
       }
     });
