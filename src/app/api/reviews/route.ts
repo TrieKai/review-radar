@@ -36,7 +36,12 @@ export async function GET(req: Request) {
 
     // Step 2: Launch Puppeteer and scrape reviews from target URL
     const browser = await puppeteer.launch({
-      args: chromium.args,
+      args: [
+        ...chromium.args,
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--lang=zh-TW",
+      ],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
