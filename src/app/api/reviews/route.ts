@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import puppeteer from "puppeteer-core";
 import OpenAI from "openai";
+import chromium from "@sparticuz/chromium";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -34,14 +35,11 @@ export async function GET(req: Request) {
     }
 
     // Step 2: Launch Puppeteer and scrape reviews from target URL
-    const executablePath =
-      process.env.NODE_ENV === "production"
-        ? "/usr/bin/google-chrome-stable"
-        : (await import("puppeteer")).executablePath();
     const browser = await puppeteer.launch({
-      executablePath,
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
     });
     const page = await browser.newPage();
 
