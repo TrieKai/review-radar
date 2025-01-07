@@ -8,6 +8,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Chromium setting
+chromium.setGraphicsMode = false;
+chromium.setHeadlessMode = true;
+
 const getChromePath = () => {
   switch (process.platform) {
     case "win32":
@@ -23,9 +27,10 @@ const getChromePath = () => {
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const shortUrl = searchParams.get("url"); // Input short URL
+  const shortUrl = searchParams.get("url");
 
   if (!shortUrl) {
+    console.log("Error: Missing URL parameter");
     return NextResponse.json(
       { error: "Missing Google Maps short URL" },
       { status: 400 }
@@ -33,7 +38,6 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Step 1: Resolve short URL to get target URL
     const response = await fetch(shortUrl, {
       method: "HEAD",
       redirect: "follow",
@@ -41,19 +45,20 @@ export async function GET(req: Request) {
     const longUrl = response.url;
 
     if (!longUrl.startsWith("https://www.google.com/maps/")) {
+      console.log("Error: Invalid Maps URL");
       return NextResponse.json(
         { error: "Invalid Google Maps URL" },
         { status: 400 }
       );
     }
 
-    // Step 2: Launch Puppeteer and scrape reviews from target URL
     const browser = await puppeteer.launch(
       process.env.NODE_ENV === "development"
         ? {
             headless: true,
             args: ["--no-sandbox", "--disable-setuid-sandbox"],
             executablePath: getChromePath(),
+            defaultViewport: null,
           }
         : {
             args: [
@@ -61,19 +66,20 @@ export async function GET(req: Request) {
               "--no-sandbox",
               "--disable-setuid-sandbox",
             ],
-            defaultViewport: chromium.defaultViewport,
+            defaultViewport: null,
             executablePath: await chromium.executablePath(),
             headless: chromium.headless,
           }
     );
+
     const page = await browser.newPage();
 
-    // Visit the resolved long URL
     await page.goto(longUrl, { waitUntil: "networkidle2" });
 
-    // Extract place name from URL for analysis only
+    // Extract place name
     const placeNameMatch = longUrl.match(/place\/([^/@]+)/);
     if (!placeNameMatch) {
+      console.log("Error: Could not extract place name");
       await browser.close();
       return NextResponse.json(
         { error: "Could not extract place name from URL" },
@@ -84,14 +90,15 @@ export async function GET(req: Request) {
     const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
     // Wait for and click the reviews button
-    await page.waitForSelector(
+    const reviewsButton = await page.waitForSelector(
       'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]',
       { timeout: 5000 }
     );
-    const reviewsButton = await page.$(
-      'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]'
-    );
-    if (!reviewsButton) throw new Error("Reviews button not found");
+
+    if (!reviewsButton) {
+      throw new Error("Reviews button not found");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await reviewsButton.evaluate((b) => b.click());
 
     // Wait for and click the sort button
@@ -99,10 +106,13 @@ export async function GET(req: Request) {
       'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]',
       { timeout: 5000 }
     );
+
     const sortButton = await page.$(
       'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]'
     );
-    if (!sortButton) throw new Error("Sort button not found");
+    if (!sortButton) {
+      throw new Error("Sort button not found");
+    }
     await sortButton.evaluate((b) => b.click());
 
     // Wait for sort menu and click "Most Recent" option
@@ -125,6 +135,12 @@ export async function GET(req: Request) {
       return false;
     });
 
+    console.time("reviewButton show up");
+    await page.waitForSelector("div[aria-label][data-review-id]", {
+      timeout: 60000,
+    });
+    console.timeEnd("reviewButton show up");
+
     // Scroll to load more reviews
     await page.evaluate(async () => {
       const delay = (ms: number) =>
@@ -132,7 +148,7 @@ export async function GET(req: Request) {
       const mainDiv = document.querySelector('div[role="main"]');
       const container = mainDiv?.children[1]; // Select the second child element
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 15; i++) {
         // Scroll 10 times or adjust as needed
         if (container) {
           container.scrollTo(0, container.scrollHeight);
@@ -223,6 +239,7 @@ export async function GET(req: Request) {
           }
         }`;
 
+    console.time("OpenAI analysis");
     const completion = await openai.chat.completions.create({
       messages: [
         {
@@ -236,6 +253,7 @@ export async function GET(req: Request) {
       response_format: { type: "json_object" },
       temperature: 0,
     });
+    console.timeEnd("OpenAI analysis");
 
     const analysis = JSON.parse(completion.choices[0].message.content || "");
 
@@ -246,9 +264,9 @@ export async function GET(req: Request) {
       analysis,
     });
   } catch (error) {
-    console.error("Error during processing:", error);
+    console.error("Error occurred at step:", error);
     return NextResponse.json(
-      { error: "Failed to process the URL" },
+      { error: `Failed to process the URL: ${error}` },
       { status: 500 }
     );
   }
