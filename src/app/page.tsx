@@ -209,12 +209,10 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
+                        <span className="text-gray-500">{review.time}</span>
+                        <span className="text-gray-500">・</span>
                         <span className="text-yellow-500">★</span>
                         <span>{review.rating}</span>
-                        <span className="text-gray-500">・</span>
-                        <span className="w-20 text-gray-500">
-                          {review.time}
-                        </span>
                       </div>
                     </div>
                     <p className="mt-2">{review.content}</p>

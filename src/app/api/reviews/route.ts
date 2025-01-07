@@ -173,7 +173,7 @@ export async function GET(req: Request) {
       const mainDiv = document.querySelector('div[role="main"]');
       const container = mainDiv?.children[1]; // Select the second child element
 
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 10; i++) {
         // Scroll 15 times or adjust as needed
         if (container) {
           container.scrollTo(0, container.scrollHeight);
