@@ -2,6 +2,9 @@
   "functions": {
     "src/app/api/reviews/route.ts": {
       "maxDuration": 60
+    },
+    "src/app/api/analysis/route.ts": {
+      "maxDuration": 60
     }
   }
 }

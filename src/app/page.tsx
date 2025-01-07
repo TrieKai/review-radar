@@ -10,7 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Register ChartJS components
 ChartJS.register(
@@ -28,7 +28,7 @@ interface Review {
   rating: string;
   time: string;
   content: string;
-  photoCount: number;
+  photos: string[];
 }
 
 interface RadarData {
@@ -51,21 +51,24 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setReviews([]);
+    setAnalysis(null);
 
     try {
+      // Step 1：get reviews
       const response = await fetch(
         `/api/reviews?url=${encodeURIComponent(url)}`
       );
       const data = await response.json();
       setPlaceName(data.placeName);
-      setAnalysis(data.analysis);
       setReviews(data.reviews);
     } catch (error) {
-      console.error("Error fetching analysis:", error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
@@ -92,6 +95,41 @@ export default function Home() {
     ],
   };
 
+  useEffect(() => {
+    const analyzing = async () => {
+      if (!reviews.length) {
+        return;
+      }
+
+      // Filter reviews to only include essential data for analysis
+      const filteredReviews = reviews.map((review) => ({
+        userInfo: review.userInfo.replace(/\s/g, ""),
+        rating: review.rating,
+        time: review.time,
+        content: review.content,
+        photoCount: review.photos.length,
+      }));
+
+      // Step 2: AI analysis
+      setAnalyzing(true);
+      const analysisResponse = await fetch("/api/analysis", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          placeName: placeName,
+          reviews: filteredReviews,
+        }),
+      });
+      const analysisData = await analysisResponse.json();
+      setAnalysis(analysisData);
+      setAnalyzing(false);
+    };
+
+    void analyzing();
+  }, [placeName, reviews]);
+
   return (
     <div className="min-h-screen p-8">
       <main className="max-w-6xl mx-auto">
@@ -115,6 +153,12 @@ export default function Home() {
             {loading ? <>🔄 AI 正在分析中...</> : <>🔍 開始 AI 分析</>}
           </button>
         </form>
+
+        {analyzing && (
+          <div className="text-center py-4">
+            <p className="text-blue-600">AI 正在分析評論中...</p>
+          </div>
+        )}
 
         {analysis && (
           <>
@@ -142,7 +186,11 @@ export default function Home() {
                 <Radar data={radarData} />
               </div>
             </div>
+          </>
+        )}
 
+        {reviews.length > 0 && (
+          <>
             <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
               <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                 <span>評論列表</span>
@@ -170,9 +218,9 @@ export default function Home() {
                       </div>
                     </div>
                     <p className="mt-2">{review.content}</p>
-                    {review.photoCount > 0 && (
+                    {review.photos.length > 0 && (
                       <div className="mt-2 text-sm text-gray-500">
-                        📷 {review.photoCount} 張相片
+                        📷 {review.photos.length} 張相片
                       </div>
                     )}
                   </div>
