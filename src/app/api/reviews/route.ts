@@ -134,7 +134,7 @@ export async function GET(req: Request) {
     await sortButton.evaluate((b) =>
       b.scrollIntoView({ behavior: "instant", block: "center" })
     );
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     await sortButton.evaluate((b) => b.click());
 
     // Wait for sort menu and click "Most Recent" option
