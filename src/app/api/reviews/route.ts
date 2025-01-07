@@ -19,6 +19,36 @@ const getChromePath = () => {
   }
 };
 
+const browserOptions =
+  process.env.NODE_ENV === "development"
+    ? {
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-accelerated-2d-canvas",
+          "--disable-gpu",
+          "--disable-extensions",
+        ],
+        executablePath: getChromePath(),
+        defaultViewport: null,
+      }
+    : {
+        args: [
+          ...chromium.args,
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-accelerated-2d-canvas",
+          "--disable-gpu",
+          "--disable-extensions",
+        ],
+        defaultViewport: null,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      };
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const shortUrl = searchParams.get("url");
@@ -46,29 +76,30 @@ export async function GET(req: Request) {
       );
     }
 
-    const browser = await puppeteer.launch(
-      process.env.NODE_ENV === "development"
-        ? {
-            headless: true,
-            args: ["--no-sandbox", "--disable-setuid-sandbox"],
-            executablePath: getChromePath(),
-            defaultViewport: null,
-          }
-        : {
-            args: [
-              ...chromium.args,
-              "--no-sandbox",
-              "--disable-setuid-sandbox",
-            ],
-            defaultViewport: null,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-          }
-    );
-
+    const browser = await puppeteer.launch(browserOptions);
     const page = await browser.newPage();
 
-    await page.goto(longUrl, { waitUntil: "networkidle2" });
+    // Optimizing page loading
+    await page.setRequestInterception(true);
+    page.on("request", (request) => {
+      // Block unnecessary resources
+      const resourceType = request.resourceType();
+      if (
+        resourceType === "image" ||
+        resourceType === "stylesheet" ||
+        resourceType === "font" ||
+        resourceType === "media"
+      ) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+
+    await page.goto(longUrl, {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
 
     // Extract place name
     const placeNameMatch = longUrl.match(/place\/([^/@]+)/);
@@ -129,11 +160,11 @@ export async function GET(req: Request) {
       return false;
     });
 
-    console.time("reviewButton show up");
+    console.time("reviews show up");
     await page.waitForSelector("div[aria-label][data-review-id]", {
       timeout: 60000,
     });
-    console.timeEnd("reviewButton show up");
+    console.timeEnd("reviews show up");
 
     // Scroll to load more reviews
     await page.evaluate(async () => {
@@ -143,15 +174,15 @@ export async function GET(req: Request) {
       const container = mainDiv?.children[1]; // Select the second child element
 
       for (let i = 0; i < 15; i++) {
-        // Scroll 10 times or adjust as needed
+        // Scroll 15 times or adjust as needed
         if (container) {
           container.scrollTo(0, container.scrollHeight);
-          await delay(500); // Wait 1 second for new content to load
+          await delay(300); // Wait 300 ms for new content to load
         }
       }
     });
 
-    // Step 3: Scrape review data
+    // Scrape review data
     const reviews = await page.evaluate(() => {
       const reviewElements = document.querySelectorAll("div[aria-label]");
       return Array.from(reviewElements)
