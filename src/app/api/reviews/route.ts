@@ -96,10 +96,12 @@ export async function GET(req: Request) {
       }
     });
 
+    console.time("domcontentloaded");
     await page.goto(longUrl, {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
+    console.timeEnd("domcontentloaded");
 
     // Extract place name
     const placeNameMatch = longUrl.match(/place\/([^/@]+)/);
@@ -114,18 +116,6 @@ export async function GET(req: Request) {
 
     const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
-    // Wait for and click the reviews button
-    const reviewsButton = await page.waitForSelector(
-      'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]',
-      { timeout: 5000 }
-    );
-
-    if (!reviewsButton) {
-      throw new Error("Reviews button not found");
-    }
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await reviewsButton.evaluate((b) => b.click());
-
     // Wait for and click the sort button
     await page.waitForSelector(
       'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]',
@@ -136,8 +126,15 @@ export async function GET(req: Request) {
       'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]'
     );
     if (!sortButton) {
-      throw new Error("Sort button not found");
+      return NextResponse.json({
+        placeName,
+        reviews: [],
+      });
     }
+    await sortButton.evaluate((b) =>
+      b.scrollIntoView({ behavior: "instant", block: "center" })
+    );
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await sortButton.evaluate((b) => b.click());
 
     // Wait for sort menu and click "Most Recent" option
@@ -166,6 +163,7 @@ export async function GET(req: Request) {
     });
     console.timeEnd("reviews show up");
 
+    console.time("scroll");
     // Scroll to load more reviews
     await page.evaluate(async () => {
       const delay = (ms: number) =>
@@ -174,14 +172,16 @@ export async function GET(req: Request) {
       const container = mainDiv?.children[1]; // Select the second child element
 
       for (let i = 0; i < 10; i++) {
-        // Scroll 15 times or adjust as needed
+        // Scroll 10 times or adjust as needed
         if (container) {
           container.scrollTo(0, container.scrollHeight);
           await delay(300); // Wait 300 ms for new content to load
         }
       }
     });
+    console.timeEnd("scroll");
 
+    console.time("scrape");
     // Scrape review data
     const reviews = await page.evaluate(() => {
       const reviewElements = document.querySelectorAll("div[aria-label]");
@@ -235,6 +235,7 @@ export async function GET(req: Request) {
           };
         });
     });
+    console.timeEnd("scrape");
 
     await browser.close();
 
