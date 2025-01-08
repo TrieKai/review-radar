@@ -62,6 +62,7 @@ export async function GET(req: Request) {
   }
 
   try {
+    console.time("reviews API"); // start
     const response = await fetch(shortUrl, {
       method: "HEAD",
       redirect: "follow",
@@ -238,6 +239,7 @@ export async function GET(req: Request) {
     console.timeEnd("scrape");
 
     await browser.close();
+    console.timeEnd("reviews API"); // end
 
     // Return both reviews and analysis
     return NextResponse.json({
