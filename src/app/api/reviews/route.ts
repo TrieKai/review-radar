@@ -135,7 +135,7 @@ export async function GET(req: Request) {
     await sortButton.evaluate((b) =>
       b.scrollIntoView({ behavior: "instant", block: "center" })
     );
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     await sortButton.evaluate((b) => b.click());
 
     // Wait for sort menu and click "Most Recent" option
@@ -158,12 +158,6 @@ export async function GET(req: Request) {
       return false;
     });
 
-    console.time("reviews show up");
-    await page.waitForSelector("div[aria-label][data-review-id]", {
-      timeout: 60000,
-    });
-    console.timeEnd("reviews show up");
-
     const { totalRating, totalReviewCount } = await page.evaluate(() => {
       const reviewElement = document.querySelector(
         'div[role="img"][aria-label*="顆星"], div[role="img"][aria-label*="stars"]'
@@ -174,6 +168,12 @@ export async function GET(req: Request) {
         totalReviewCount: reviewCountElement?.textContent || "0",
       };
     });
+
+    console.time("reviews show up");
+    await page.waitForSelector("div[aria-label][data-review-id]", {
+      timeout: 60000,
+    });
+    console.timeEnd("reviews show up");
 
     console.time("scroll");
     // Scroll to load more reviews
