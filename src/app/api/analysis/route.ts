@@ -17,11 +17,11 @@ export async function POST(req: Request) {
         "suspicionScore": number,
         "findings": string[],
         "radarData": {
-          "languageNaturalness": number,
-          "relevance": number,
-          "commentLength": number,
-          "postingTimeConsistency": number,
-          "userHistory": number
+          "languageArtificialness": number,
+          "irrelevance": number,
+          "unusualCommentLength": number,
+          "postingTimeAnomalies": number,
+          "userInactivity": number
         }
       }`;
 
@@ -31,11 +31,12 @@ export async function POST(req: Request) {
         {
           role: "system",
           content: `你是一位專業的評論分析專家，擅長偵測可疑的評論模式。請使用以下指標來分析評論：
-            - LN (Language Naturalness): 0-100, higher = fluent language.
-            - RL (Relevance): 0-100, higher = content relevance to the location.
-            - CL (Comment Length): 0-100, higher = longer comment.
-            - PTC (Posting Time Consistency): 0-100, higher = regular timing.
-            - UH (User History): 0-100, higher = active user history.`,
+            - Language Artificialness: 0-100, higher = less natural and more artificial.
+            - Irrelevance: 0-100, higher = less relevant to the location.
+            - Unusual Comment Length: 0-100, higher = abnormally short or long.
+            - Posting Time Anomalies: 0-100, higher = irregular timing.
+            - User Inactivity: 0-100, higher = limited user activity or engagement.
+            在地嚮導的評論應該降低 30-50% 的可疑分數。`,
         },
         { role: "user", content: analysisPrompt },
       ],

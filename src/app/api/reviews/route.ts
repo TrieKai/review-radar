@@ -164,6 +164,17 @@ export async function GET(req: Request) {
     });
     console.timeEnd("reviews show up");
 
+    const { totalRating, totalReviewCount } = await page.evaluate(() => {
+      const reviewElement = document.querySelector(
+        'div[role="img"][aria-label*="顆星"], div[role="img"][aria-label*="stars"]'
+      );
+      const reviewCountElement = reviewElement?.nextElementSibling;
+      return {
+        totalRating: reviewElement?.getAttribute("aria-label") || "No rating",
+        totalReviewCount: reviewCountElement?.textContent || "0",
+      };
+    });
+
     console.time("scroll");
     // Scroll to load more reviews
     await page.evaluate(async () => {
@@ -244,6 +255,8 @@ export async function GET(req: Request) {
     // Return both reviews and analysis
     return NextResponse.json({
       placeName,
+      totalRating,
+      totalReviewCount,
       reviews,
     });
   } catch (error) {
