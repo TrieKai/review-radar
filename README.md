@@ -1,4 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Review Radar
+
+AI Review Radar is an intelligent tool that analyzes Google Maps reviews to detect potential fake reviews and suspicious patterns. By leveraging advanced AI technology and data analysis, it helps businesses and consumers make more informed decisions.
+
+## Features
+
+- **Review Scraping**: Automatically extracts reviews from any Google Maps location
+- **AI-Powered Analysis**: Uses GPT-4 to analyze review patterns and detect suspicious activities
+- **Comprehensive Metrics**: Provides detailed analysis through multiple dimensions
+- **Real-time Processing**: Delivers instant results with visual representations
+- **Multi-language Support**: Works with reviews in various languages
+
+## How It Works
+
+### 1. Data Collection
+- Accepts Google Maps short URLs or full URLs
+- Uses Puppeteer to scrape reviews, including:
+  - User information
+  - Review content
+  - Ratings
+  - Timestamps
+  - Photos
+  - Local guide status
+
+### 2. AI Analysis Process
+
+The AI analysis evaluates reviews based on five key dimensions:
+
+#### a. Language Naturalness (0-100)
+- Analyzes writing style consistency
+- Detects machine-generated or templated content
+- Evaluates language patterns and expressions
+
+#### b. Content Relevance (0-100)
+- Assesses if review content matches the business type
+- Checks for generic vs. specific details
+- Identifies location-specific references
+
+#### c. Comment Length Pattern (0-100)
+- Examines the distribution of review lengths
+- Identifies unusual patterns in content structure
+- Detects copy-pasted content
+
+#### d. Posting Time Consistency (0-100)
+- Analyzes the temporal distribution of reviews
+- Identifies suspicious posting patterns
+- Detects batch posting behavior
+
+#### e. User History Credibility (0-100)
+- Evaluates reviewer profiles
+- Considers Local Guide status
+- Analyzes review and photo contribution history
+
+### 3. Suspicion Score Calculation
+
+The final suspicion score (0-100) is calculated using a weighted average of the five dimensions:
+- Higher scores indicate higher likelihood of fake reviews
+- Scores above 70 suggest significant suspicious activity
+- Scores below 30 generally indicate authentic review patterns
 
 ## Getting Started
 
@@ -16,21 +74,43 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technology Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend**: Next.js 14, React, TailwindCSS
+- **Backend**: Next.js API Routes
+- **AI Model**: OpenAI GPT-4o-mini
+- **Web Scraping**: Puppeteer
+- **Deployment**: Vercel
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+Create a `.env.local` file in the root directory with the following variables:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+OPENAI_API_KEY=your_openai_api_key
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Limitations
 
-## Deploy on Vercel
+- Google Maps rate limiting may affect scraping performance
+- Analysis accuracy depends on available review data
+- Maximum review analysis limited to recent 50 reviews
+- API response times may vary based on review volume
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributing
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- OpenAI for providing the GPT-4o-mini API
+- Vercel for hosting and deployment
+- Next.js team for the amazing framework
+
+## Contact
+
+For any questions or feedback, please open an issue in the GitHub repository.
