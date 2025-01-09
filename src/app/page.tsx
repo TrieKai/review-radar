@@ -11,6 +11,8 @@ import {
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 // Register ChartJS components
 ChartJS.register(
@@ -23,7 +25,9 @@ ChartJS.register(
 );
 
 interface Review {
-  user: string;
+  userName: string;
+  userAvatar: string;
+  userUrl: string;
   userInfo: string;
   rating: string;
   time: string;
@@ -240,10 +244,25 @@ export default function Home() {
                   <div key={index} className="border-b pb-4">
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="font-bold">{review.user}</div>
-                        <div className="text-sm text-gray-600">
-                          {review.userInfo}
-                        </div>
+                        <Link
+                          href={review.userUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-start gap-2 hover:opacity-80 transition-opacity"
+                        >
+                          <Image
+                            src={review.userAvatar}
+                            alt={review.userName}
+                            width={44}
+                            height={44}
+                          />
+                          <div className="flex flex-col">
+                            <span className="font-bold">{review.userName}</span>
+                            <span className="text-sm text-gray-600">
+                              {review.userInfo}
+                            </span>
+                          </div>
+                        </Link>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-gray-500">{review.time}</span>

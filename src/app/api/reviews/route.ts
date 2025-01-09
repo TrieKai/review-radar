@@ -207,8 +207,15 @@ export async function GET(req: Request) {
           )[1];
 
           // Get all text content divs inside the button
+          const userUrl = userInfoButton?.getAttribute("data-href") || "";
           const infoDivs = userInfoButton?.querySelectorAll("div") || [];
           const [nameDiv, guideInfoDiv] = Array.from(infoDivs);
+
+          const userAvatarButton = review.querySelector(
+            'button[aria-label*="的相片"], button[aria-label*="Photo of"]'
+          );
+          const userAvatar =
+            userAvatarButton?.children[0].getAttribute("src") || "";
 
           const userName = nameDiv?.textContent || "Anonymous";
           const guideInfo = guideInfoDiv?.textContent || ""; // Keep the original guide info text
@@ -238,7 +245,9 @@ export async function GET(req: Request) {
             .filter((url) => url !== null);
 
           return {
-            user: userName,
+            userName,
+            userAvatar,
+            userUrl,
             userInfo: guideInfo, // Now just a string like "在地嚮導 · 19 則評論 · 930 張相片"
             rating: rating.replace(/\D/g, ""),
             time,
