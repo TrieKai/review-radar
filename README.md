@@ -1,6 +1,6 @@
 # AI Review Radar <img src="public/review-radar.png" alt="AI Review Radar Icon" width="32" height="32" />
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4)](https://tailwindcss.com/)
 
@@ -82,7 +82,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Technology Stack
 
-- **Frontend**: Next.js 14, React, TailwindCSS
+- **Frontend**: Next.js 15, React, TailwindCSS
 - **Backend**: Next.js API Routes
 - **AI Model**: OpenAI GPT-4o-mini
 - **Web Scraping**: Puppeteer
