@@ -10,7 +10,7 @@ import {
   Legend,
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MessageIcon, StarIcon } from "./icons";
@@ -59,6 +59,7 @@ export default function Home() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState("");
 
   const radarData = {
     labels: ["語言自然度", "相關性", "評論長度", "發文時間一致性", "用戶歷史"],
@@ -81,28 +82,51 @@ export default function Home() {
     ],
   };
 
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    setLoading(true);
-    setReviews([]);
-    setAnalysis(null);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent): Promise<void> => {
+      e.preventDefault();
+      setError("");
 
-    try {
-      // Step 1：get reviews
-      const response = await fetch(
-        `/api/reviews?url=${encodeURIComponent(url)}`
-      );
-      const data = await response.json();
-      setPlaceName(data.placeName);
-      setTotalRating(data.totalRating);
-      setTotalReviewCount(data.totalReviewCount);
-      setReviews(data.reviews);
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // valid URL format
+      const urlPattern = /^https:\/\/maps\.app\.goo\.gl\/[a-zA-Z0-9]+$/;
+      if (!urlPattern.test(url)) {
+        setError(
+          "請輸入有效的 Google Maps 短網址 (例如: https://maps.app.goo.gl/xxxxx)"
+        );
+        return;
+      }
+
+      setLoading(true);
+      setPlaceName("");
+      setTotalRating("");
+      setTotalReviewCount("");
+      setReviews([]);
+      setAnalysis(null);
+
+      try {
+        // Step 1：get reviews
+        const response = await fetch(
+          `/api/reviews?url=${encodeURIComponent(url)}`
+        );
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        setPlaceName(data.placeName);
+        setTotalRating(data.totalRating);
+        setTotalReviewCount(data.totalReviewCount);
+        setReviews(data.reviews);
+      } catch (error) {
+        console.error("Error:", error);
+        setError("無法取得評論資料，請稍後再試");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [url]
+  );
 
   useEffect(() => {
     const analyzing = async (): Promise<void> => {
@@ -151,22 +175,37 @@ export default function Home() {
           <span className="text-blue-600">AI</span> Review Radar 🤖
         </h1>
 
-        <form onSubmit={handleSubmit} className="mb-8">
-          <input
-            type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="輸入 Google Maps 短網址，讓 AI 為您分析評論"
-            className="w-full p-4 border rounded-lg mb-4 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-400 transition-colors duration-200 flex items-center gap-2"
-          >
-            {loading ? <>🔄 AI 正在分析中...</> : <>🔍 開始 AI 分析</>}
-          </button>
-        </form>
+        <div className="w-full max-w-3xl mx-auto">
+          <form onSubmit={handleSubmit} className="mb-8">
+            <div className="flex flex-col gap-2">
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  setError("");
+                }}
+                placeholder="輸入 Google Maps 短網址 (例如: https://maps.app.goo.gl/xxxxx)"
+                className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              {error && (
+                <div className="text-red-500 text-sm mt-1">{error}</div>
+              )}
+              <button
+                type="submit"
+                disabled={loading || !url}
+                className={`px-4 py-2 rounded bg-blue-500 text-white font-semibold ${
+                  loading || !url
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-blue-600"
+                }`}
+              >
+                {loading ? <>🔄 AI 正在分析中...</> : <>🔍 開始 AI 分析</>}
+              </button>
+            </div>
+          </form>
+        </div>
 
         {analyzing && (
           <div className="text-center py-4">

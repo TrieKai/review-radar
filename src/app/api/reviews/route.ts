@@ -44,8 +44,8 @@ const browserOptions =
           "--disable-gpu",
           "--disable-extensions",
         ],
-        defaultViewport: null,
         executablePath: await chromium.executablePath(),
+        defaultViewport: null,
         headless: chromium.headless,
       };
 
@@ -77,6 +77,10 @@ export async function GET(req: Request) {
       );
     }
 
+    // Add language parameter and navigate to it
+    const urlObj = new URL(longUrl);
+    urlObj.searchParams.set("hl", "zh-TW");
+
     const browser = await puppeteer.launch(browserOptions);
     const page = await browser.newPage();
 
@@ -97,26 +101,15 @@ export async function GET(req: Request) {
       }
     });
 
-    console.time("domcontentloaded original url");
-    await page.goto(longUrl, {
-      waitUntil: "domcontentloaded",
-      timeout: 30000,
-    });
-    console.timeEnd("domcontentloaded original url");
-
-    // Add language parameter and navigate to it
-    const finalUrl = page.url();
-    const urlObj = new URL(finalUrl);
-    urlObj.searchParams.set("hl", "zh-TW");
-
-    console.time("domcontentloaded final url");
+    console.time("domcontentloaded");
     await page.goto(urlObj.toString(), {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    console.timeEnd("domcontentloaded final url");
+    console.timeEnd("domcontentloaded");
 
     // Extract place name
+    const finalUrl = page.url();
     const placeNameMatch = finalUrl.match(/place\/([^/@]+)/);
     if (!placeNameMatch) {
       console.log("Error: Could not extract place name");
