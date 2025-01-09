@@ -97,15 +97,27 @@ export async function GET(req: Request) {
       }
     });
 
-    console.time("domcontentloaded");
+    console.time("domcontentloaded original url");
     await page.goto(longUrl, {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    console.timeEnd("domcontentloaded");
+    console.timeEnd("domcontentloaded original url");
+
+    // Add language parameter and navigate to it
+    const finalUrl = page.url();
+    const urlObj = new URL(finalUrl);
+    urlObj.searchParams.set("hl", "zh-TW");
+
+    console.time("domcontentloaded final url");
+    await page.goto(urlObj.toString(), {
+      waitUntil: "domcontentloaded",
+      timeout: 30000,
+    });
+    console.timeEnd("domcontentloaded final url");
 
     // Extract place name
-    const placeNameMatch = longUrl.match(/place\/([^/@]+)/);
+    const placeNameMatch = finalUrl.match(/place\/([^/@]+)/);
     if (!placeNameMatch) {
       console.log("Error: Could not extract place name");
       await browser.close();
