@@ -269,7 +269,7 @@ export default function Home() {
               <div className="space-y-4">
                 {reviews.map((review, index) => (
                   <div key={index} className="border-b pb-4">
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start flex-col md:flex-row gap-2">
                       <div>
                         <Link
                           href={review.userUrl}
@@ -291,7 +291,7 @@ export default function Home() {
                           </div>
                         </Link>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-row-reverse md:flex-row">
                         <span className="text-gray-500">{review.time}</span>
                         <span className="text-gray-500">・</span>
                         <span className="text-yellow-500">★</span>
