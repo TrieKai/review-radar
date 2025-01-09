@@ -11,7 +11,7 @@ AI Review Radar is an intelligent tool that analyzes Google Maps reviews to dete
 ## Features
 
 - **Review Scraping**: Automatically extracts reviews from any Google Maps location
-- **AI-Powered Analysis**: Uses GPT-4 to analyze review patterns and detect suspicious activities
+- **AI-Powered Analysis**: Uses GPT-4o-mini to analyze review patterns and detect suspicious activities
 - **Comprehensive Metrics**: Provides detailed analysis through multiple dimensions
 - **Real-time Processing**: Delivers instant results with visual representations
 - **Multi-language Support**: Works with reviews in various languages

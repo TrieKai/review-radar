@@ -59,7 +59,28 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const radarData = {
+    labels: ["語言自然度", "相關性", "評論長度", "發文時間一致性", "用戶歷史"],
+    datasets: [
+      {
+        label: "評論指標",
+        data: analysis
+          ? [
+              analysis.radarData.languageArtificialness,
+              analysis.radarData.irrelevance,
+              analysis.radarData.unusualCommentLength,
+              analysis.radarData.postingTimeAnomalies,
+              analysis.radarData.userInactivity,
+            ]
+          : [],
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderColor: "rgba(255, 99, 132, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setReviews([]);
@@ -82,57 +103,41 @@ export default function Home() {
     }
   };
 
-  const radarData = {
-    labels: ["語言自然度", "相關性", "評論長度", "發文時間一致性", "用戶歷史"],
-    datasets: [
-      {
-        label: "評論指標",
-        data: analysis
-          ? [
-              analysis.radarData.languageArtificialness,
-              analysis.radarData.irrelevance,
-              analysis.radarData.unusualCommentLength,
-              analysis.radarData.postingTimeAnomalies,
-              analysis.radarData.userInactivity,
-            ]
-          : [],
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
-        borderColor: "rgba(255, 99, 132, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
-
   useEffect(() => {
-    const analyzing = async () => {
+    const analyzing = async (): Promise<void> => {
       if (!reviews.length) {
         return;
       }
 
-      // Filter reviews to only include essential data for analysis
-      const filteredReviews = reviews.map((review) => ({
-        userInfo: review.userInfo.replace(/\s/g, ""),
-        rating: review.rating,
-        time: review.time,
-        content: review.content,
-        photoCount: review.photos.length,
-      }));
+      try {
+        // Filter reviews to only include essential data for analysis
+        const filteredReviews = reviews.map((review) => ({
+          userInfo: review.userInfo.replace(/\s/g, ""),
+          rating: review.rating,
+          time: review.time,
+          content: review.content,
+          photoCount: review.photos.length,
+        }));
 
-      // Step 2: AI analysis
-      setAnalyzing(true);
-      const analysisResponse = await fetch("/api/analysis", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          placeName,
-          reviews: filteredReviews,
-        }),
-      });
-      const analysisData = await analysisResponse.json();
-      setAnalysis(analysisData);
-      setAnalyzing(false);
+        setAnalyzing(true);
+        // Step 2：get analysis
+        const analysisResponse = await fetch("/api/analysis", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            placeName,
+            reviews: filteredReviews,
+          }),
+        });
+        const analysisData = await analysisResponse.json();
+        setAnalysis(analysisData);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setAnalyzing(false);
+      }
     };
 
     void analyzing();
