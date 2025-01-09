@@ -1,7 +1,7 @@
 # AI Review Radar <img src="public/review-radar.png" alt="AI Review Radar Icon" width="32" height="32" />
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19-blue)](https://reactjs.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4)](https://tailwindcss.com/)
 
 AI Review Radar is an intelligent tool that analyzes Google Maps reviews to detect potential fake reviews and suspicious patterns. By leveraging advanced AI technology and data analysis, it helps businesses and consumers make more informed decisions.
