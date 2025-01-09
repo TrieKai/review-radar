@@ -13,6 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "https://review-radar-iota.vercel.app"
+  ),
   title: "AI Review Radar - 智能評論分析工具",
   description:
     "使用 AI 技術分析 Google Maps 評論的真實性，偵測可疑的評論模式，協助您做出更明智的決策。",
@@ -57,7 +60,14 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/review-radar.png" />
         <link rel="apple-touch-icon" href="/review-radar.png" />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ffffff" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Review Radar" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="application-name" content="Review Radar" />
+        <meta name="description" content="智能評論分析工具" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
