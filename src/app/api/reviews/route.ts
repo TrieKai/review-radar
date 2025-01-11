@@ -140,7 +140,7 @@ export async function GET(req: Request) {
     console.time("click sort button");
     await sortButton.evaluate(async (b) => {
       b.scrollIntoView({ behavior: "instant", block: "center" });
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       b.click();
     });
     console.timeEnd("click sort button");
@@ -148,7 +148,7 @@ export async function GET(req: Request) {
     // Wait for sort menu and click "Most Recent" option
     console.time("wait for sort menu");
     await page.waitForSelector('div[role="menu"][id="action-menu"]', {
-      timeout: 5000,
+      timeout: 10000,
     });
     console.timeEnd("wait for sort menu");
 
