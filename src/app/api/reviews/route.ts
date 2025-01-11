@@ -137,11 +137,11 @@ export async function GET(req: Request) {
         reviews: [],
       });
     }
-    await sortButton.evaluate((b) =>
-      b.scrollIntoView({ behavior: "instant", block: "center" })
-    );
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    await sortButton.evaluate((b) => b.click());
+    await sortButton.evaluate(async (b) => {
+      b.scrollIntoView({ behavior: "instant", block: "center" });
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      b.click();
+    });
 
     // Wait for sort menu and click "Most Recent" option
     await page.waitForSelector('div[role="menu"][id="action-menu"]', {
