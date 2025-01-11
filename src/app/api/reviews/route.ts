@@ -123,30 +123,36 @@ export async function GET(req: Request) {
     const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
     // Wait for and click the sort button
-    await page.waitForSelector(
+    console.time("wait for sort button");
+    const sortButton = await page.waitForSelector(
       'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]',
-      { timeout: 5000 }
+      { timeout: 10000 }
     );
+    console.timeEnd("wait for sort button");
 
-    const sortButton = await page.$(
-      'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]'
-    );
     if (!sortButton) {
       return NextResponse.json({
         placeName,
         reviews: [],
       });
     }
+
+    console.time("click sort button");
     await sortButton.evaluate(async (b) => {
       b.scrollIntoView({ behavior: "instant", block: "center" });
       await new Promise((resolve) => setTimeout(resolve, 1500));
       b.click();
     });
+    console.timeEnd("click sort button");
 
     // Wait for sort menu and click "Most Recent" option
+    console.time("wait for sort menu");
     await page.waitForSelector('div[role="menu"][id="action-menu"]', {
       timeout: 5000,
     });
+    console.timeEnd("wait for sort menu");
+
+    console.time("click most recent");
     await page.evaluate(() => {
       const menuItems = document.querySelectorAll(
         'div[role="menu"][id="action-menu"] div[role="menuitemradio"]'
@@ -162,6 +168,7 @@ export async function GET(req: Request) {
       }
       return false;
     });
+    console.timeEnd("click most recent");
 
     const { totalRating, totalReviewCount } = await page.evaluate(() => {
       const reviewElement = document.querySelector(
