@@ -90,10 +90,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Environment Variables
 
-Create a `.env.local` file in the root directory with the following variables:
+Copy the `.env.example` file to `.env.local` and update the variables:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key
+OPENAI_API_KEY=
+NEXT_PUBLIC_BASE_URL=
 ```
 
 ## Limitations

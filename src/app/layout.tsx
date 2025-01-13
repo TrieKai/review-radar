@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "真實性分析",
     "商家評價",
   ],
-  authors: [{ name: "Your Name" }],
+  authors: [{ name: "Trie Chen" }],
   openGraph: {
     title: "AI Review Radar - 智能評論分析工具",
     description:
@@ -49,6 +49,7 @@ export const metadata: Metadata = {
       "使用 AI 技術分析 Google Maps 評論的真實性，偵測可疑的評論模式。",
     images: ["/review-radar.png"],
   },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
