@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { MessageIcon, StarIcon } from "./icons";
+import { getPlaceReviews } from "@/services/api";
 
 // Register ChartJS components
 ChartJS.register(
@@ -105,19 +106,21 @@ export default function Home() {
 
       try {
         // Step 1：get reviews
-        const response = await fetch(
-          `/api/place-reviews?url=${encodeURIComponent(url)}&sort=newest`
-        );
-        const data = await response.json();
+        const response = await getPlaceReviews({
+          url,
+          sort: "newest",
+          fullContent: false,
+          scrollTimes: 0,
+        });
 
-        if (data.error) {
-          throw new Error(data.error);
+        if (response.error) {
+          throw new Error(response.error);
         }
 
-        setPlaceName(data.placeName);
-        setTotalRating(data.totalRating);
-        setTotalReviewCount(data.totalReviewCount);
-        setReviews(data.reviews);
+        setPlaceName(response.placeName);
+        setTotalRating(response.totalRating.toString());
+        setTotalReviewCount(response.totalReviewCount.toString());
+        setReviews(response.reviews);
       } catch (error) {
         console.error("Error:", error);
         setError("無法取得評論資料，請稍後再試");

@@ -58,7 +58,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-TW" suppressHydrationWarning>
+    <html lang="zh-TW">
       <head>
         <link rel="icon" href="/review-radar.png" />
         <link rel="apple-touch-icon" href="/review-radar.png" />
@@ -73,6 +73,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
         <Analytics />
