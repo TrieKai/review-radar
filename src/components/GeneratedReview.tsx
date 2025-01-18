@@ -3,7 +3,9 @@ interface GeneratedReviewProps {
 }
 
 export function GeneratedReview({ review }: GeneratedReviewProps) {
-  if (!review) return null;
+  if (!review) {
+    return null;
+  }
 
   return (
     <div className="mt-8">

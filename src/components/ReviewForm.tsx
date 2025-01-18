@@ -12,7 +12,7 @@ interface ReviewFormProps {
   formData: FormData;
   onChange: (data: Partial<FormData>) => void;
   onSubmit: () => void;
-  loading: boolean;
+  loading: "crawling" | "generating" | false;
 }
 
 export function ReviewForm({
@@ -87,17 +87,22 @@ export function ReviewForm({
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={!!loading}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
       >
-        {loading ? (
+        {loading === "crawling" && (
           <>
             <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            生成中...
+            取得資料中...
           </>
-        ) : (
-          "生成評論"
         )}
+        {loading === "generating" && (
+          <>
+            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            生成評論中...
+          </>
+        )}
+        {loading === false && "生成評論"}
       </button>
     </form>
   );

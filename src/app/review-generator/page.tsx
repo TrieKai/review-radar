@@ -30,12 +30,14 @@ export default function ReviewGenerator() {
     personalNotes: "",
     sentiment: "neutral",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<"crawling" | "generating" | false>(
+    false
+  );
   const [generatedReview, setGeneratedReview] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (): Promise<void> => {
-    setLoading(true);
+    setLoading("crawling");
     setError(null);
 
     try {
@@ -67,6 +69,7 @@ export default function ReviewGenerator() {
         .slice(0, 3)
         .map((review) => review.content);
 
+      setLoading("generating");
       const review = await generateReview({
         personalReviews: filteredPersonalReviews,
         placeReviews: filteredPlaceReviews,
@@ -86,7 +89,9 @@ export default function ReviewGenerator() {
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h1 className="text-3xl font-bold mb-8 text-center">Google Maps AI 評論生成器</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center">
+          Google Maps AI 評論生成器
+        </h1>
         <ReviewForm
           formData={formData}
           onChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
