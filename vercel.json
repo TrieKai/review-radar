@@ -1,9 +1,12 @@
 {
   "functions": {
-    "src/app/api/reviews/route.ts": {
+    "src/app/api/place-reviews/route.ts": {
       "maxDuration": 60
     },
     "src/app/api/analysis/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/personal-reviews/route.ts": {
       "maxDuration": 60
     }
   }

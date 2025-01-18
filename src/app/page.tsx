@@ -106,7 +106,7 @@ export default function Home() {
       try {
         // Step 1：get reviews
         const response = await fetch(
-          `/api/reviews?url=${encodeURIComponent(url)}`
+          `/api/place-reviews?url=${encodeURIComponent(url)}&sort=newest`
         );
         const data = await response.json();
 

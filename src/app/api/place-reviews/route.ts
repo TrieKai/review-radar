@@ -1,57 +1,21 @@
 import { NextResponse } from "next/server";
 import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import { browserOptions } from "../_helpers/chrome";
+import { optimizePage } from "../_helpers/page";
 
-// Chromium setting
-chromium.setGraphicsMode = false;
-chromium.setHeadlessMode = true;
-
-const getChromePath = () => {
-  switch (process.platform) {
-    case "win32":
-      return "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-    case "darwin":
-      return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-    case "linux":
-      return "/usr/bin/google-chrome";
-    default:
-      return "/usr/bin/google-chrome";
-  }
-};
-
-const browserOptions =
-  process.env.NODE_ENV === "development"
-    ? {
-        headless: true,
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-accelerated-2d-canvas",
-          "--disable-gpu",
-          "--disable-extensions",
-        ],
-        executablePath: getChromePath(),
-        defaultViewport: null,
-      }
-    : {
-        args: [
-          ...chromium.args,
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-accelerated-2d-canvas",
-          "--disable-gpu",
-          "--disable-extensions",
-        ],
-        executablePath: await chromium.executablePath(),
-        defaultViewport: null,
-        headless: chromium.headless,
-      };
-
+/**
+ * Fetches Google Maps review data given a Google Maps URL.
+ * Returns a JSON object containing the place name, total rating, total review count, and an array of review objects.
+ *
+ * @param {Request} req Next.js request object
+ * @returns {Promise<NextResponse>} A JSON response containing the review data
+ */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const shortUrl = searchParams.get("url");
+  const sort = searchParams.get("sort");
+  const fullContent = searchParams.get("fullContent");
+  const scrollTimes = searchParams.get("scrollTimes");
 
   if (!shortUrl) {
     console.log("Error: Missing URL parameter");
@@ -62,7 +26,7 @@ export async function GET(req: Request) {
   }
 
   try {
-    console.time("reviews API"); // start
+    console.time("place reviews API"); // start
     const response = await fetch(shortUrl, {
       method: "HEAD",
       redirect: "follow",
@@ -85,24 +49,10 @@ export async function GET(req: Request) {
     const page = await browser.newPage();
 
     // Optimizing page loading
-    await page.setRequestInterception(true);
-    page.on("request", (request) => {
-      // Block unnecessary resources
-      const resourceType = request.resourceType();
-      if (
-        resourceType === "image" ||
-        resourceType === "stylesheet" ||
-        resourceType === "font" ||
-        resourceType === "media"
-      ) {
-        request.abort();
-      } else {
-        request.continue();
-      }
-    });
+    await optimizePage(page);
 
     console.time("domcontentloaded");
-    await page.goto(urlObj.toString(), {
+    await page.goto(urlObj.href, {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
@@ -122,53 +72,68 @@ export async function GET(req: Request) {
 
     const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
-    // Wait for and click the sort button
-    console.time("wait for sort button");
-    const sortButton = await page.waitForSelector(
-      'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]',
-      { timeout: 10000 }
-    );
-    console.timeEnd("wait for sort button");
-
-    if (!sortButton) {
-      return NextResponse.json({
-        placeName,
-        reviews: [],
-      });
-    }
-
-    console.time("click sort button");
-    await sortButton.evaluate(async (b) => {
-      b.scrollIntoView({ behavior: "instant", block: "center" });
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      b.click();
-    });
-    console.timeEnd("click sort button");
-
-    // Wait for sort menu and click "Most Recent" option
-    console.time("wait for sort menu");
-    await page.waitForSelector('div[role="menu"][id="action-menu"]', {
-      timeout: 10000,
-    });
-    console.timeEnd("wait for sort menu");
-
-    console.time("click most recent");
-    await page.evaluate(() => {
-      const menuItems = document.querySelectorAll(
-        'div[role="menu"][id="action-menu"] div[role="menuitemradio"]'
+    if (sort === "newest") {
+      // Wait for and click the sort button
+      console.time("wait for sort button");
+      const sortButton = await page.waitForSelector(
+        'button[aria-label="排序評論"][data-value="排序"], button[aria-label="Sort reviews"][data-value="Sort"]',
+        { timeout: 10000 }
       );
-      for (const item of menuItems) {
-        if (
-          item.textContent?.includes("最新") ||
-          item.textContent?.includes("Newest")
-        ) {
-          (item as HTMLElement).click();
-          return true;
-        }
+      console.timeEnd("wait for sort button");
+
+      if (!sortButton) {
+        return NextResponse.json({
+          placeName,
+          reviews: [],
+        });
       }
-      return false;
-    });
-    console.timeEnd("click most recent");
+
+      console.time("click sort button");
+      await sortButton.evaluate(async (b) => {
+        b.scrollIntoView({ behavior: "instant", block: "center" });
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        b.click();
+      });
+      console.timeEnd("click sort button");
+
+      // Wait for sort menu and click "Most Recent" option
+      console.time("wait for sort menu");
+      await page.waitForSelector('div[role="menu"][id="action-menu"]', {
+        timeout: 10000,
+      });
+      console.timeEnd("wait for sort menu");
+
+      console.time("click most recent");
+      await page.evaluate(() => {
+        const menuItems = document.querySelectorAll(
+          'div[role="menu"][id="action-menu"] div[role="menuitemradio"]'
+        );
+        for (const item of menuItems) {
+          if (
+            item.textContent?.includes("最新") ||
+            item.textContent?.includes("Newest")
+          ) {
+            (item as HTMLElement).click();
+            return true;
+          }
+        }
+        return false;
+      });
+      console.timeEnd("click most recent");
+    } else {
+      // Wait for and click the reviews button
+      console.time("wait for reviews button");
+      const reviewsButton = await page.waitForSelector(
+        'button[role="tab"][aria-label*="的評論"], button[role="tab"][aria-label*="Reviews for"]',
+        { timeout: 5000 }
+      );
+      console.timeEnd("wait for reviews button");
+      if (!reviewsButton) {
+        throw new Error("Reviews button not found");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      await reviewsButton.evaluate((b) => b.click());
+    }
 
     const { totalRating, totalReviewCount } = await page.evaluate(() => {
       const reviewElement = document.querySelector(
@@ -187,26 +152,41 @@ export async function GET(req: Request) {
     });
     console.timeEnd("reviews show up");
 
-    console.time("scroll");
     // Scroll to load more reviews
-    await page.evaluate(async () => {
+    console.time("scroll");
+    await page.evaluate(async (scrollTimes) => {
       const delay = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms));
       const mainDiv = document.querySelector('div[role="main"]');
       const container = mainDiv?.children[1]; // Select the second child element
 
-      for (let i = 0; i < 10; i++) {
-        // Scroll 10 times or adjust as needed
+      const scrollTimesNumber = scrollTimes ? parseInt(scrollTimes) : 10;
+      for (let i = 0; i < scrollTimesNumber; i++) {
+        // Scroll down 10 times or adjust as needed
         if (container) {
           container.scrollTo(0, container.scrollHeight);
           await delay(300); // Wait 300 ms for new content to load
         }
       }
-    });
+    }, scrollTimes);
     console.timeEnd("scroll");
 
-    console.time("scrape");
+    if (fullContent === "true") {
+      // Wait for and click the "Show more" button
+      console.time("click show more");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await page.evaluate(() => {
+        const buttons = document.querySelectorAll(
+          'button[aria-label="顯示更多"]'
+        ) as NodeListOf<HTMLButtonElement>;
+        buttons.forEach((button) => button.click());
+      });
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.timeEnd("click show more");
+    }
+
     // Scrape review data
+    console.time("scrape");
     const reviews = await page.evaluate(() => {
       const reviewElements = document.querySelectorAll("div[aria-label]");
       return Array.from(reviewElements)
@@ -271,7 +251,7 @@ export async function GET(req: Request) {
     console.timeEnd("scrape");
 
     await browser.close();
-    console.timeEnd("reviews API"); // end
+    console.timeEnd("place reviews API"); // end
 
     // Return both reviews and analysis
     return NextResponse.json({
