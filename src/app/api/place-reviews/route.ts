@@ -3,17 +3,10 @@ import puppeteer from "puppeteer-core";
 import { browserOptions } from "../_helpers/chrome";
 import { optimizePage } from "../_helpers/page";
 
-/**
- * Fetches Google Maps review data given a Google Maps URL.
- * Returns a JSON object containing the place name, total rating, total review count, and an array of review objects.
- *
- * @param {Request} req Next.js request object
- * @returns {Promise<NextResponse>} A JSON response containing the review data
- */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const shortUrl = searchParams.get("url");
-  const sort = searchParams.get("sort");
+  const sort = searchParams.get("sort") || "relevant";
   const fullContent = searchParams.get("fullContent");
   const scrollTimes = searchParams.get("scrollTimes");
 
@@ -72,7 +65,7 @@ export async function GET(req: Request) {
 
     const placeName = decodeURIComponent(placeNameMatch[1].replace(/\+/g, " "));
 
-    if (sort === "newest") {
+    if (sort !== "relevant") {
       // Wait for and click the sort button
       console.time("wait for sort button");
       const sortButton = await page.waitForSelector(
@@ -104,21 +97,33 @@ export async function GET(req: Request) {
       console.timeEnd("wait for sort menu");
 
       console.time("click most recent");
-      await page.evaluate(() => {
+      await page.evaluate((sort) => {
+        const sortChineseText =
+          sort === "newest"
+            ? "最新"
+            : sort === "highest"
+            ? "評分最高"
+            : "評分最低";
+        const sortEnglishText =
+          sort === "newest"
+            ? "Newest"
+            : sort === "highest"
+            ? "Highest rating"
+            : "Lowest rating";
         const menuItems = document.querySelectorAll(
           'div[role="menu"][id="action-menu"] div[role="menuitemradio"]'
         );
         for (const item of menuItems) {
           if (
-            item.textContent?.includes("最新") ||
-            item.textContent?.includes("Newest")
+            item.textContent?.includes(sortChineseText) ||
+            item.textContent?.includes(sortEnglishText)
           ) {
             (item as HTMLElement).click();
             return true;
           }
         }
         return false;
-      });
+      }, sort);
       console.timeEnd("click most recent");
     } else {
       // Wait for and click the reviews button

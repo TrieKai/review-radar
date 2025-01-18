@@ -10,6 +10,12 @@ import {
   generateReview,
 } from "@/services/api";
 
+const SENTIMENT_SORT_MAP = {
+  negative: "lowest",
+  neutral: "relevant",
+  positive: "highest",
+} as const;
+
 interface FormData {
   profileUrl: string;
   placeUrl: string;
@@ -37,6 +43,7 @@ export default function ReviewGenerator() {
         getPersonalReviews(formData.profileUrl),
         getPlaceReviews({
           url: formData.placeUrl,
+          sort: SENTIMENT_SORT_MAP[formData.sentiment],
           fullContent: true,
           scrollTimes: 0,
         }),
@@ -79,7 +86,7 @@ export default function ReviewGenerator() {
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h1 className="text-3xl font-bold mb-8 text-center">AI 評論生成器</h1>
+        <h1 className="text-3xl font-bold mb-8 text-center">Google Maps AI 評論生成器</h1>
         <ReviewForm
           formData={formData}
           onChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}

@@ -9,7 +9,6 @@ export async function POST(req: Request) {
   try {
     const { personalReviews, placeReviews, personalNotes, sentiment } =
       await req.json();
-    console.log(personalReviews, placeReviews, personalNotes, sentiment);
 
     // 準備 prompt
     const prompt = `

@@ -20,7 +20,7 @@ const getChromePath = () => {
 export const browserOptions =
   process.env.NODE_ENV === "development"
     ? {
-        headless: false,
+        headless: true,
         args: [
           "--no-sandbox",
           "--disable-setuid-sandbox",

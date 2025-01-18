@@ -36,7 +36,7 @@ export interface GenerateReviewResponse {
 
 export interface PlaceReviewsParams {
   url: string;
-  sort?: "newest";
+  sort?: "relevant" | "newest" | "highest" | "lowest";
   fullContent?: boolean;
   scrollTimes?: number;
 }
