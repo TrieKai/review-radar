@@ -36,7 +36,14 @@ export default function ReviewGenerator() {
   const [generatedReview, setGeneratedReview] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+
+    if (!formData.profileUrl || !formData.placeUrl) {
+      setError("請填寫所有必填欄位");
+      return;
+    }
+
     setLoading("crawling");
     setError(null);
 
@@ -88,23 +95,25 @@ export default function ReviewGenerator() {
 
   return (
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-        <h1 className="text-3xl font-bold mb-8 text-center">
-          Google Maps AI 評論生成器
-        </h1>
-        <ReviewForm
-          formData={formData}
-          onChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
-          onSubmit={handleSubmit}
-          loading={loading}
-        />
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-600">{error}</p>
-          </div>
-        )}
-        <GeneratedReview review={generatedReview} />
-      </div>
+      <main className="max-w-6xl mx-auto">
+        <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
+          <h1 className="text-3xl font-bold mb-8 text-center">
+            Google Maps AI 評論生成器
+          </h1>
+          <ReviewForm
+            formData={formData}
+            onChange={(data) => setFormData((prev) => ({ ...prev, ...data }))}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
+          {error && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-red-600">{error}</p>
+            </div>
+          )}
+          <GeneratedReview review={generatedReview} />
+        </div>
+      </main>
     </div>
   );
 }

@@ -4,81 +4,85 @@
 [![React](https://img.shields.io/badge/React-19-blue)](https://reactjs.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-06B6D4)](https://tailwindcss.com/)
 
-AI Review Radar is an intelligent tool that analyzes Google Maps reviews to detect potential fake reviews and suspicious patterns. By leveraging advanced AI technology and data analysis, it helps businesses and consumers make more informed decisions.
+AI Review Radar is a comprehensive review management tool that combines review analysis and generation capabilities. It leverages advanced AI technology to analyze Google Maps reviews for potential fake reviews and generates personalized review responses based on historical data.
 
 ![Demo Screenshot](public/demo.png)
 
-## Features
+## Key Features
 
+### 1. Review Analysis
 - **Review Scraping**: Automatically extracts reviews from any Google Maps location
-- **AI-Powered Analysis**: Uses GPT-4o-mini to analyze review patterns and detect suspicious activities
-- **Comprehensive Metrics**: Provides detailed analysis through multiple dimensions
+- **AI-Powered Analysis**: Uses advanced AI models to analyze review patterns and detect suspicious activities
+- **Comprehensive Metrics**: Provides detailed analysis through multiple dimensions:
+  - Language Naturalness (0-100)
+  - Content Relevance (0-100)
+  - Comment Length Pattern (0-100)
+  - Posting Time Consistency (0-100)
+  - User Activity (0-100)
 - **Real-time Processing**: Delivers instant results with visual representations
 - **Multi-language Support**: Works with reviews in various languages
 
-## How It Works
+### 2. Review Generation
+- **Personalized Responses**: Generates tailored reviews based on user profiles
+- **Sentiment Analysis**: Supports positive, neutral, and negative review generation
+- **Historical Data Integration**: Utilizes historical review data for more authentic responses
+- **Multi-language Generation**: Supports review generation in multiple languages
 
-### 1. Data Collection
-- Accepts Google Maps short URLs or full URLs
-- Uses Puppeteer to scrape reviews, including:
-  - User information
-  - Review content
-  - Ratings
-  - Timestamps
-  - Photos
-  - Local guide status
+## Technical Details
 
-### 2. AI Analysis Process
+### Review Analysis Process
+1. **Data Collection**
+   - Accepts Google Maps short URLs or full URLs
+   - Uses Puppeteer to scrape reviews, including:
+     - User information
+     - Review content
+     - Ratings
+     - Timestamps
+     - Photos
+     - Local Guide status
 
-The AI analysis evaluates reviews based on five key dimensions:
+2. **AI Analysis Process**
+   - Analyzes writing style consistency
+   - Detects machine-generated or templated content
+   - Evaluates language patterns and expressions
+   - Assesses content relevance to business type
+   - Checks for generic vs. specific details
+   - Identifies location-specific references
 
-#### a. Language Naturalness (0-100)
-- Analyzes writing style consistency
-- Detects machine-generated or templated content
-- Evaluates language patterns and expressions
+### Review Generation Process
+1. **User Profile Analysis**
+   - Analyzes user's review history
+   - Extracts writing style and preferences
+   - Identifies key terms and themes
 
-#### b. Content Relevance (0-100)
-- Assesses if review content matches the business type
-- Checks for generic vs. specific details
-- Identifies location-specific references
-
-#### c. Comment Length Pattern (0-100)
-- Examines the distribution of review lengths
-- Identifies unusual patterns in content structure
-- Detects copy-pasted content
-
-#### d. Posting Time Consistency (0-100)
-- Analyzes the temporal distribution of reviews
-- Identifies suspicious posting patterns
-- Detects batch posting behavior
-
-#### e. User History Credibility (0-100)
-- Evaluates reviewer profiles
-- Considers Local Guide status
-- Analyzes review and photo contribution history
-
-### 3. Suspicion Score Calculation
-
-The final suspicion score (0-100) is calculated using a weighted average of the five dimensions:
-- Higher scores indicate higher likelihood of fake reviews
-- Scores above 70 suggest significant suspicious activity
-- Scores below 30 generally indicate authentic review patterns
+2. **Content Generation**
+   - Generates reviews based on sentiment
+   - Integrates location-specific information
+   - Maintains style consistency
+   - Adds personalized details
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+```bash
+git clone https://github.com/TrieKai/review-radar.git
+```
 
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Technology Stack
 
@@ -93,8 +97,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 Copy the `.env.example` file to `.env.local` and update the variables:
 
 ```env
-OPENAI_API_KEY=
-NEXT_PUBLIC_BASE_URL=
+OPENAI_API_KEY=your_openai_api_key
 ```
 
 ## Limitations
@@ -106,17 +109,11 @@ NEXT_PUBLIC_BASE_URL=
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- OpenAI for providing the GPT-4o-mini API
-- Vercel for hosting and deployment
-- Next.js team for the amazing framework
+[MIT](https://choosealicense.com/licenses/mit/)
 
 ## Contact
 

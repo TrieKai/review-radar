@@ -148,9 +148,7 @@ export default function ReviewAnalysis() {
     <div className="min-h-screen p-8">
       <main className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">
-          <Link href="/" className="hover:opacity-80">
-            <span className="text-blue-600">AI</span> Review Radar 🤖
-          </Link>
+          <span className="text-blue-600">AI</span> Review Radar 🤖
         </h1>
 
         <div className="w-full max-w-3xl mx-auto">

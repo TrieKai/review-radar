@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       4. 用戶給予的情緒：${sentiment}
 
       請生成一篇符合以下要求的評論：
-      1. 完全依照用戶的寫作風格和用詞習慣
+      1. 完全依照用戶的寫作格式和用詞習慣
       2. 必須完全將個人見解與寫作風格和用詞習慣融入評論中
       3. 評論長度約150-300字
     `;
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
           content: prompt,
         },
       ],
-      temperature: 0.5,
+      temperature: 0.7,
     });
 
     const generatedReview = completion.choices[0].message.content;
