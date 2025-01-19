@@ -1,3 +1,5 @@
+import { RadarData } from "./analysis";
+
 export interface PersonalReview {
   rating: string;
   time: string;
@@ -21,6 +23,13 @@ export interface PersonalReviewsResponse {
   reviews: PersonalReview[];
 }
 
+export interface PlaceReviewsParams {
+  url: string;
+  sort?: "relevant" | "newest" | "highest" | "lowest";
+  fullContent?: boolean;
+  scrollTimes?: number;
+}
+
 export interface PlaceReviewsResponse {
   error?: string;
   placeName: string;
@@ -29,16 +38,22 @@ export interface PlaceReviewsResponse {
   reviews: PlaceReview[];
 }
 
-export interface GenerateReviewResponse {
-  review: string;
-  error?: string;
+export interface AnalysisParams {
+  placeName: string;
+  reviews: {
+    userInfo: string;
+    rating: string;
+    time: string;
+    content: string;
+    photoCount: number;
+  }[];
 }
 
-export interface PlaceReviewsParams {
-  url: string;
-  sort?: "relevant" | "newest" | "highest" | "lowest";
-  fullContent?: boolean;
-  scrollTimes?: number;
+export interface AnalysisResponse {
+  error?: string;
+  suspicionScore: number;
+  findings: string[];
+  radarData: RadarData;
 }
 
 export interface GenerateReviewParams {
@@ -46,4 +61,9 @@ export interface GenerateReviewParams {
   placeReviews: string[];
   personalNotes: string;
   sentiment: string;
+}
+
+export interface GenerateReviewResponse {
+  review: string;
+  error?: string;
 }

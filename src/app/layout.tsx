@@ -14,42 +14,61 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || "https://review-radar-iota.vercel.app"
-  ),
-  title: "AI Review Radar - 智能評論分析工具",
+  title: "AI Review Radar - Review Analysis & Generation Tool",
   description:
-    "使用 AI 技術分析 Google Maps 評論的真實性，偵測可疑的評論模式，協助您做出更明智的決策。",
+    "AI-powered tool for analyzing Google Maps reviews and generating personalized review responses. Detect fake reviews and create authentic responses.",
   keywords: [
-    "AI",
-    "評論分析",
     "Google Maps",
-    "洗評論",
-    "真實性分析",
-    "商家評價",
+    "Review Analysis",
+    "Review Generation",
+    "AI",
+    "Fake Review Detection",
+    "Review Management",
+    "Merchant Reviews",
+    "User Reviews",
   ],
   authors: [{ name: "Trie Chen" }],
+  creator: "Trie Chen",
   openGraph: {
-    title: "AI Review Radar - 智能評論分析工具",
+    title: "AI Review Radar - Review Analysis & Generation Tool",
     description:
-      "使用 AI 技術分析 Google Maps 評論的真實性，偵測可疑的評論模式。",
+      "AI-powered tool for analyzing Google Maps reviews and generating personalized review responses. Detect fake reviews and create authentic responses.",
+    url: "https://review-radar.vercel.app",
+    siteName: "AI Review Radar",
     images: [
       {
         url: "/review-radar.png",
-        width: 1200,
-        height: 630,
-        alt: "AI Review Radar Logo",
+        width: 800,
+        height: 600,
+        alt: "AI Review Radar Screenshot",
       },
     ],
+    locale: "zh_TW",
+    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Review Radar - 智能評論分析工具",
+    title: "AI Review Radar - Review Analysis & Generation Tool",
     description:
-      "使用 AI 技術分析 Google Maps 評論的真實性，偵測可疑的評論模式。",
+      "AI-powered tool for analyzing Google Maps reviews and generating personalized review responses. Detect fake reviews and create authentic responses.",
     images: ["/review-radar.png"],
+    creator: "@TrieChen",
   },
-  manifest: "/manifest.json",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -69,7 +88,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Review Radar" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Review Radar" />
-        <meta name="description" content="智能評論分析工具" />
+        <meta
+          name="description"
+          content="AI-powered tool for analyzing Google Maps reviews and generating personalized review responses. Detect fake reviews and create authentic responses."
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

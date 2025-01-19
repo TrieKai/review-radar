@@ -5,6 +5,8 @@ import {
   PlaceReviewsParams,
   PlaceReviewsResponse,
   GenerateReviewParams,
+  AnalysisResponse,
+  AnalysisParams,
 } from "@/types/api";
 
 const api = axios.create({
@@ -37,6 +39,13 @@ export const getPlaceReviews = async ({
       scrollTimes,
     },
   });
+  return data;
+};
+
+export const analyzeReviews = async ({
+  reviews,
+}: AnalysisParams): Promise<AnalysisResponse> => {
+  const { data } = await api.post<AnalysisResponse>("/analysis", { reviews });
   return data;
 };
 
