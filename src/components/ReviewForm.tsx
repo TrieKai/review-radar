@@ -1,5 +1,5 @@
 import { Description, Label, Radio, RadioGroup } from "@headlessui/react";
-import type { Sentiment } from "./SentimentSelector";
+import type { Sentiment } from "@/types/generator";
 
 interface FormData {
   profileUrl: string;

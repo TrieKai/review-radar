@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { ReviewForm } from "@/components/ReviewForm";
 import { GeneratedReview } from "@/components/GeneratedReview";
-import { type Sentiment } from "@/components/SentimentSelector";
 import {
   getPersonalReviews,
   getPlaceReviews,
   generateReview,
 } from "@/services/api";
+import type { Sentiment } from "@/types/generator";
 
 const SENTIMENT_SORT_MAP = {
   negative: "lowest",
