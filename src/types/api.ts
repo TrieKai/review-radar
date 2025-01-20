@@ -61,6 +61,8 @@ export interface GenerateReviewParams {
   placeReviews: string[];
   personalNotes: string;
   sentiment: string;
+  model: string;
+  temperature: number;
 }
 
 export interface GenerateReviewResponse {

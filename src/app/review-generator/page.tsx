@@ -8,7 +8,7 @@ import {
   getPlaceReviews,
   generateReview,
 } from "@/services/api";
-import type { Sentiment } from "@/types/generator";
+import type { FormData } from "@/types/generator";
 
 const SENTIMENT_SORT_MAP = {
   negative: "lowest",
@@ -16,19 +16,14 @@ const SENTIMENT_SORT_MAP = {
   positive: "highest",
 } as const;
 
-interface FormData {
-  profileUrl: string;
-  placeUrl: string;
-  personalNotes: string;
-  sentiment: Sentiment;
-}
-
 export default function ReviewGenerator() {
   const [formData, setFormData] = useState<FormData>({
     profileUrl: "",
     placeUrl: "",
     personalNotes: "",
     sentiment: "neutral",
+    model: "gpt",
+    temperature: 0.7,
   });
   const [loading, setLoading] = useState<"crawling" | "generating" | false>(
     false
@@ -82,6 +77,8 @@ export default function ReviewGenerator() {
         placeReviews: filteredPlaceReviews,
         personalNotes: formData.personalNotes,
         sentiment: formData.sentiment,
+        model: formData.model,
+        temperature: formData.temperature,
       });
 
       setGeneratedReview(review);

@@ -1,12 +1,5 @@
 import { Description, Label, Radio, RadioGroup } from "@headlessui/react";
-import type { Sentiment } from "@/types/generator";
-
-interface FormData {
-  profileUrl: string;
-  placeUrl: string;
-  personalNotes: string;
-  sentiment: Sentiment;
-}
+import type { Sentiment, Model, FormData } from "@/types/generator";
 
 interface ReviewFormProps {
   formData: FormData;
@@ -37,12 +30,36 @@ const SENTIMENT_OPTIONS: {
   },
 ];
 
+const MODEL_OPTIONS: {
+  value: Model;
+  label: string;
+  description: string;
+  maxTemp: number;
+}[] = [
+  {
+    value: "gpt",
+    label: "ChatGPT",
+    description: "OpenAI GPT-4o-mini 模型",
+    maxTemp: 1,
+  },
+  {
+    value: "gemini",
+    label: "Gemini",
+    description: "Google Gemini-1.5-flash-8b 模型",
+    maxTemp: 2,
+  },
+];
+
 export function ReviewForm({
   formData,
   onChange,
   onSubmit,
   loading,
 }: ReviewFormProps) {
+  const currentModel = MODEL_OPTIONS.find(
+    (option) => option.value === formData.model
+  );
+
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
@@ -108,59 +125,127 @@ export function ReviewForm({
         </div>
       </div>
 
-      <div>
+      <div className="space-y-4">
+        <label>選擇模型</label>
         <RadioGroup
-          value={formData.sentiment}
-          onChange={(value) => onChange({ sentiment: value })}
+          value={formData.model}
+          onChange={(value) => onChange({ model: value as Model })}
+          className="space-y-4"
         >
-          <Label className="block text-sm font-medium text-gray-700">
-            評價傾向
-          </Label>
-
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {SENTIMENT_OPTIONS.map((sentiment) => (
-              <Radio
-                key={sentiment.value}
-                value={sentiment.value}
-                className={({ checked }) =>
-                  `${
-                    checked
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-white text-gray-900 hover:bg-gray-50"
-                  } relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
-                }
-              >
-                {({ checked }) => (
-                  <>
-                    <div className="flex w-full items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="text-sm">
-                          <Label
-                            as="p"
-                            className={`font-medium ${
-                              checked ? "text-white" : "text-gray-900"
-                            }`}
-                          >
-                            {sentiment.label}
-                          </Label>
-                          <Description
-                            as="span"
-                            className={`inline ${
-                              checked ? "text-blue-100" : "text-gray-500"
-                            }`}
-                          >
-                            {sentiment.description}
-                          </Description>
-                        </div>
+          {MODEL_OPTIONS.map((option) => (
+            <Radio
+              key={option.value}
+              value={option.value}
+              className={({ checked }) =>
+                `${checked ? "bg-sky-900 bg-opacity-75 text-white" : "bg-white"}
+                relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
+              }
+            >
+              {({ checked }) => (
+                <>
+                  <div className="flex w-full items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="text-sm">
+                        <Label
+                          as="p"
+                          className={`font-medium ${
+                            checked ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {option.label}
+                        </Label>
+                        <Description
+                          as="span"
+                          className={`inline ${
+                            checked ? "text-sky-100" : "text-gray-500"
+                          }`}
+                        >
+                          {option.description}
+                        </Description>
                       </div>
                     </div>
-                  </>
-                )}
-              </Radio>
-            ))}
-          </div>
+                  </div>
+                </>
+              )}
+            </Radio>
+          ))}
         </RadioGroup>
       </div>
+
+      <div className="space-y-2">
+        <label htmlFor="temperature">
+          Temperature ({formData.temperature})
+        </label>
+        <input
+          type="range"
+          name="temperature"
+          id="temperature"
+          min="0"
+          max={currentModel?.maxTemp || 1}
+          step="0.1"
+          value={formData.temperature}
+          onChange={(e) =>
+            onChange({ temperature: parseFloat(e.target.value) })
+          }
+          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        />
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>保守</span>
+          <span>創意</span>
+        </div>
+      </div>
+
+      <RadioGroup
+        value={formData.sentiment}
+        onChange={(value) => onChange({ sentiment: value })}
+      >
+        <Label className="block text-sm font-medium text-gray-700">
+          評價傾向
+        </Label>
+
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {SENTIMENT_OPTIONS.map((sentiment) => (
+            <Radio
+              key={sentiment.value}
+              value={sentiment.value}
+              className={({ checked }) =>
+                `${
+                  checked
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-white text-gray-900 hover:bg-gray-50"
+                } relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
+              }
+            >
+              {({ checked }) => (
+                <>
+                  <div className="flex w-full items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="text-sm">
+                        <Label
+                          as="p"
+                          className={`font-medium ${
+                            checked ? "text-white" : "text-gray-900"
+                          }`}
+                        >
+                          {sentiment.label}
+                        </Label>
+                        <Description
+                          as="span"
+                          className={`inline ${
+                            checked ? "text-blue-100" : "text-gray-500"
+                          }`}
+                        >
+                          {sentiment.description}
+                        </Description>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </Radio>
+          ))}
+        </div>
+      </RadioGroup>
 
       <div>
         <button
