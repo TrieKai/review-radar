@@ -88,7 +88,7 @@ yarn dev
 
 - **Frontend**: Next.js 15, React, TailwindCSS
 - **Backend**: Next.js API Routes
-- **AI Model**: OpenAI GPT-4o-mini
+- **AI Model**: OpenAI GPT-4o-mini and Gemini-1.5-flash-8b
 - **Web Scraping**: Puppeteer
 - **Deployment**: Vercel
 
