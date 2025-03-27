@@ -70,16 +70,16 @@ git clone https://github.com/TrieKai/review-radar.git
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 # or
-yarn install
+npm install
 ```
 
 3. Run the development server:
 ```bash
-npm run dev
+pnpm run dev
 # or
-yarn dev
+npm run dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
@@ -98,6 +98,7 @@ Copy the `.env.example` file to `.env.local` and update the variables:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ## Limitations
