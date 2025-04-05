@@ -1,4 +1,9 @@
+# *
 User-agent: *
 Allow: /
 
-Sitemap: https://your-domain.com/sitemap.xml
+# Host
+Host: https://review-radar-iota.vercel.app
+
+# Sitemaps
+Sitemap: https://review-radar-iota.vercel.app/sitemap.xml
