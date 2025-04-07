@@ -34,11 +34,11 @@ export const metadata: Metadata = {
     title: "AI Review Radar - Review Analysis & Generation Tool",
     description:
       "AI-powered tool for analyzing Google Maps reviews and generating personalized review responses. Detect fake reviews and create authentic responses.",
-    url: "https://review-radar.vercel.app",
+    url: "https://review-radar-iota.vercel.app",
     siteName: "AI Review Radar",
     images: [
       {
-        url: "/review-radar.png",
+        url: "/review-radar.svg",
         width: 800,
         height: 600,
         alt: "AI Review Radar Screenshot",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: "AI Review Radar - Review Analysis & Generation Tool",
     description:
       "AI-powered tool for analyzing Google Maps reviews and generating personalized review responses. Detect fake reviews and create authentic responses.",
-    images: ["/review-radar.png"],
+    images: ["/review-radar.svg"],
     creator: "@TrieChen",
   },
   viewport: {
@@ -80,8 +80,8 @@ export default function RootLayout({
   return (
     <html lang="zh-TW">
       <head>
-        <link rel="icon" href="/review-radar.png" />
-        <link rel="apple-touch-icon" href="/review-radar.png" />
+        <link rel="icon" href="/review-radar.svg" />
+        <link rel="apple-touch-icon" href="/review-radar.svg" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

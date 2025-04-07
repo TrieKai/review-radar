@@ -1,4 +1,4 @@
-# AI Review Radar <img src="public/review-radar.png" alt="AI Review Radar Icon" width="32" height="32" />
+# AI Review Radar <img src="public/review-radar.svg" alt="AI Review Radar Icon" width="32" height="32" />
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://reactjs.org/)
