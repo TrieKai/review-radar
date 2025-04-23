@@ -10,6 +10,11 @@ export async function GET(req: Request) {
   const fullContent = searchParams.get("fullContent");
   const scrollTimes = searchParams.get("scrollTimes");
 
+  // Check if it's a cron job from GitHub Actions
+  if (req.headers.get("user-agent")?.includes("GitHub-Actions")) {
+    return NextResponse.json({ status: "ok" }, { status: 200 });
+  }
+
   if (!shortUrl) {
     console.log("Error: Missing URL parameter");
     return NextResponse.json(

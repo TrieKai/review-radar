@@ -12,11 +12,5 @@
     "src/app/api/generate-review/route.ts": {
       "maxDuration": 60
     }
-  },
-  "crons": [
-    {
-      "path": "/api/place-reviews",
-      "schedule": "0 10 * * *"
-    }
-  ]
+  }
 }
