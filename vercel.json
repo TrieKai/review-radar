@@ -15,8 +15,8 @@
   },
   "crons": [
     {
-      "path": "/api/analysis",
-      "schedule": "*/10 * * * *"
+      "path": "/api/place-reviews",
+      "schedule": "0 10 * * *"
     }
   ]
 }
