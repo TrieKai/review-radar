@@ -12,5 +12,11 @@
     "src/app/api/generate-review/route.ts": {
       "maxDuration": 60
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/analysis",
+      "schedule": "*/10 * * * *"
+    }
+  ]
 }
