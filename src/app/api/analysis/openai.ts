@@ -7,7 +7,10 @@ export const getOpenAISystemPrompt = (): string => {
     - Unusual Comment Length: 0-100, higher = abnormally short or long.
     - Posting Time Anomalies: 0-100, higher = irregular timing.
     - User Inactivity: 0-100, higher = limited user activity or engagement.
-    在地嚮導的評論應該降低 30-50% 的可疑分數。`;
+
+    特別注意：
+    - 如果評論提及「送」、「贈」、「抽獎」、「打卡」等促銷行為，請顯著提高可疑分數（例如 +50%）。
+    - 如果評論非上述促銷行為且為在地嚮導的評論，請降低 30-50% 的可疑分數。`;
 };
 
 export const getOpenAIUserPrompt = (
