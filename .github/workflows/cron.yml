@@ -13,3 +13,4 @@ jobs:
       - name: Call Review Radar API
         run: |
           curl -X GET "https://review-radar-iota.vercel.app/api/place-reviews"
+            -H "X-Cron-Trigger: github"

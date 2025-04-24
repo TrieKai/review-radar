@@ -11,7 +11,7 @@ export async function GET(req: Request) {
   const scrollTimes = searchParams.get("scrollTimes");
 
   // Check if it's a cron job from GitHub Actions
-  if (req.headers.get("user-agent")?.includes("GitHub-Actions")) {
+  if (req.headers.get("x-cron-trigger")?.includes("github")) {
     return NextResponse.json({ status: "ok" }, { status: 200 });
   }
 
