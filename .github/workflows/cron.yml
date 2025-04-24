@@ -12,4 +12,4 @@ jobs:
     steps:
       - name: Call Review Radar API
         run: |
-          curl -X GET "https://review-radar.vercel.app/api/place-reviews"
+          curl -X GET "https://review-radar-iota.vercel.app/api/place-reviews"
