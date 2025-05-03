@@ -43,9 +43,15 @@ export const getPlaceReviews = async ({
 };
 
 export const analyzeReviews = async ({
+  placeName,
   reviews,
+  model,
 }: AnalysisParams): Promise<AnalysisResponse> => {
-  const { data } = await api.post<AnalysisResponse>("/analysis", { reviews });
+  const { data } = await api.post<AnalysisResponse>("/analysis", {
+    placeName,
+    reviews,
+    model,
+  });
   return data;
 };
 

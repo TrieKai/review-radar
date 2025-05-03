@@ -37,6 +37,7 @@ export default function ReviewAnalysis() {
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState("");
+  const [model, setModel] = useState<"openai" | "gemini">("openai");
 
   const radarData = {
     labels: ["語言自然度", "相關性", "評論長度", "發文時間一致性", "用戶歷史"],
@@ -126,6 +127,7 @@ export default function ReviewAnalysis() {
         const response = await analyzeReviews({
           placeName,
           reviews: filteredReviews,
+          model,
         });
 
         if (response.error) {
@@ -142,7 +144,7 @@ export default function ReviewAnalysis() {
     };
 
     void analyzing();
-  }, [placeName, reviews]);
+  }, [placeName, reviews, model]);
 
   return (
     <div className="min-h-screen p-8">
@@ -152,22 +154,38 @@ export default function ReviewAnalysis() {
         </h1>
 
         <div className="w-full max-w-3xl mx-auto">
-          <form onSubmit={handleSubmit} className="mb-8">
-            <div className="flex flex-col gap-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="url" className="text-sm font-semibold">
+                Google Maps 商家網址
+              </label>
               <input
-                type="url"
+                id="url"
+                type="text"
                 value={url}
-                onChange={(e) => {
-                  setUrl(e.target.value);
-                  setError("");
-                }}
+                onChange={(e) => setUrl(e.target.value)}
                 placeholder="輸入 Google Maps 短網址 (例如: https://maps.app.goo.gl/xxxxx)"
-                className="w-full px-4 py-2 rounded border focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="p-2 border rounded"
                 required
               />
-              {error && (
-                <div className="text-red-500 text-sm mt-1">{error}</div>
-              )}
+            </div>
+            <div className="flex flex-col space-y-2">
+              <label htmlFor="model" className="text-sm font-semibold">
+                AI 模型
+              </label>
+              <select
+                id="model"
+                value={model}
+                onChange={(e) =>
+                  setModel(e.target.value as "openai" | "gemini")
+                }
+                className="p-2 border rounded"
+              >
+                <option value="openai">OpenAI</option>
+                <option value="gemini">Google Gemini</option>
+              </select>
+            </div>
+            <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={loading || !url}

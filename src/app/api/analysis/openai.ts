@@ -18,18 +18,18 @@ export const getOpenAIUserPrompt = (
   reviews: Review[]
 ): string => {
   return `分析Google Maps上「${placeName}」的評論是否有洗評論的可能性。以下是該地點依序由新到舊的評論資料，請考慮發文時間、寫作風格、照片數量、評分模式、使用者資訊（是否為在地嚮導、過去評論的數量和過去上傳的照片數量）和內容品質。
-      Reviews: ${JSON.stringify(reviews)}
+    Reviews: ${JSON.stringify(reviews)}
 
-      Reply in concise JSON:
-      {
-        "suspicionScore": number,
-        "findings": string[],
-        "radarData": {
-          "languageArtificialness": number,
-          "irrelevance": number,
-          "unusualCommentLength": number,
-          "postingTimeAnomalies": number,
-          "userInactivity": number
-        }
-      }`;
+    Reply in concise JSON:
+    {
+      "suspicionScore": number,
+      "findings": string[],
+      "radarData": {
+        "languageArtificialness": number,
+        "irrelevance": number,
+        "unusualCommentLength": number,
+        "postingTimeAnomalies": number,
+        "userInactivity": number
+      }
+    }`;
 };

@@ -47,6 +47,7 @@ export interface AnalysisParams {
     content: string;
     photoCount: number;
   }[];
+  model: "openai" | "gemini";
 }
 
 export interface AnalysisResponse {

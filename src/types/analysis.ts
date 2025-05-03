@@ -22,3 +22,15 @@ export interface Analysis {
   findings: string[];
   radarData: RadarData;
 }
+
+export interface AnalysisParams {
+  placeName: string;
+  reviews: {
+    userInfo: string;
+    rating: string;
+    time: string;
+    content: string;
+    photoCount: number;
+  }[];
+  model: "openai" | "gemini";
+}
