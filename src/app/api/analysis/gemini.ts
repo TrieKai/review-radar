@@ -1,48 +1,56 @@
 import { Schema, SchemaType } from "@google/generative-ai";
+import { z } from "zod";
 import { Review } from "@/types/analysis";
 
+export const analysisResponseSchema = z.object({
+  suspicionScore: z.number(),
+  findings: z.array(z.string()),
+  radarData: z.object({
+    languageArtificialness: z.number(),
+    irrelevance: z.number(),
+    unusualCommentLength: z.number(),
+    postingTimeAnomalies: z.number(),
+    userInactivity: z.number(),
+  }),
+});
+
+// For Gemini's function calling
 export const GEMINI_RESPONSE_SCHEMA: Schema = {
   type: SchemaType.OBJECT,
   properties: {
     suspicionScore: {
-      type: SchemaType.INTEGER,
-      description:
-        "Suspicion score of the review, 0-100, higher = more suspicious.",
+      type: SchemaType.NUMBER,
+      description: "Suspicion score from 0-100",
     },
     findings: {
       type: SchemaType.ARRAY,
       items: {
         type: SchemaType.STRING,
       },
-      description: "Findings of the review",
+      description: "List of suspicious findings",
     },
     radarData: {
       type: SchemaType.OBJECT,
       properties: {
         languageArtificialness: {
-          type: SchemaType.INTEGER,
-          description:
-            "Language artificialness of the review, 0-100, higher = less natural and more artificial.",
+          type: SchemaType.NUMBER,
+          description: "Language artificialness score from 0-100",
         },
         irrelevance: {
-          type: SchemaType.INTEGER,
-          description:
-            "Irrelevance of the review, 0-100, higher = less relevant to the location.",
+          type: SchemaType.NUMBER,
+          description: "Irrelevance score from 0-100",
         },
         unusualCommentLength: {
-          type: SchemaType.INTEGER,
-          description:
-            "Unusual comment length of the review, 0-100, higher = abnormally short or long.",
+          type: SchemaType.NUMBER,
+          description: "Unusual comment length score from 0-100",
         },
         postingTimeAnomalies: {
-          type: SchemaType.INTEGER,
-          description:
-            "Posting time anomalies of the review, 0-100, higher = irregular timing.",
+          type: SchemaType.NUMBER,
+          description: "Posting time anomalies score from 0-100",
         },
         userInactivity: {
-          type: SchemaType.INTEGER,
-          description:
-            "User inactivity of the review, 0-100, higher = limited user activity or engagement.",
+          type: SchemaType.NUMBER,
+          description: "User inactivity score from 0-100",
         },
       },
       required: [
