@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getOpenAIUserPrompt, getOpenAISystemPrompt } from "./openai";
 import {
   getGeminiSystemPrompt,
@@ -6,8 +8,7 @@ import {
   GEMINI_RESPONSE_SCHEMA,
   analysisResponseSchema,
 } from "./gemini";
-import OpenAI from "openai";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Analysis } from "@/types/analysis";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -15,7 +16,10 @@ const openai = new OpenAI({
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-async function validateAndParseResponse(content: string, source: string) {
+const validateAndParseResponse = (
+  content: string,
+  source: string
+): Analysis => {
   try {
     const data = JSON.parse(content);
     const result = analysisResponseSchema.safeParse(data);
@@ -27,10 +31,10 @@ async function validateAndParseResponse(content: string, source: string) {
 
     return result.data;
   } catch (error) {
-    console.error(`Failed to parse ${source} response:`, content);
+    console.error("Failed to parse response from", source, error);
     throw new Error(`Invalid JSON response from ${source}`);
   }
-}
+};
 
 export async function POST(request: NextRequest) {
   try {

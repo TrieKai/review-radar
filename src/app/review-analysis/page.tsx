@@ -185,6 +185,7 @@ export default function ReviewAnalysis() {
                 <option value="gemini">Google Gemini</option>
               </select>
             </div>
+            {error && <p className="text-red-500">{error}</p>}
             <div className="flex justify-end">
               <button
                 type="submit"
