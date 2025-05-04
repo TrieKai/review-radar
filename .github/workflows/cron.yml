@@ -3,7 +3,7 @@ name: Vercel Cron Job
 on:
   schedule:
     # Every 15 minutes
-    - cron: "*/15 * * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -13,4 +13,4 @@ jobs:
       - name: Call Review Radar API
         run: |
           curl -X GET "https://review-radar-iota.vercel.app/api/place-reviews" \
-               -H "X-Cron-Trigger: github"
+            -H "X-Cron-Trigger: github"
