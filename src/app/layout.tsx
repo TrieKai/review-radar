@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import Navbar from "@/components/Navbar";
+import ClientWarmup from "@/components/ClientWarmup";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -99,6 +100,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Navbar />
+        <ClientWarmup />
         {children}
         <Analytics />
       </body>

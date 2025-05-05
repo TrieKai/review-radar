@@ -1,19 +1,18 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer-core";
 import { browserOptions } from "../_helpers/chrome";
 import { optimizePage } from "../_helpers/page";
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
+export async function HEAD() {
+  return new Response(null, { status: 200 });
+}
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
   const shortUrl = searchParams.get("url");
   const sort = searchParams.get("sort") || "relevant";
   const fullContent = searchParams.get("fullContent");
   const scrollTimes = searchParams.get("scrollTimes");
-
-  // Check if it's a cron job from GitHub Actions
-  if (req.headers.get("x-cron-trigger")?.includes("github")) {
-    return NextResponse.json({ status: "ok" }, { status: 200 });
-  }
 
   if (!shortUrl) {
     console.log("Error: Missing URL parameter");

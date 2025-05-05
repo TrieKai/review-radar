@@ -36,6 +36,10 @@ const validateAndParseResponse = (
   }
 };
 
+export async function HEAD() {
+  return new Response(null, { status: 200 });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { placeName, reviews, model } = await request.json();
