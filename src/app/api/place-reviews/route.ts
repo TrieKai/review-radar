@@ -43,18 +43,23 @@ export async function GET(req: Request) {
     const urlObj = new URL(longUrl);
     urlObj.searchParams.set("hl", "zh-TW");
 
+    console.time("puppeteer launch");
     const browser = await puppeteer.launch(browserOptions);
+    console.timeEnd("puppeteer launch");
+
+    console.time("new page");
     const page = await browser.newPage();
+    console.timeEnd("new page");
 
     // Optimizing page loading
     await optimizePage(page);
 
-    console.time("domcontentloaded");
+    console.time("page goto waitUntil domcontentloaded");
     await page.goto(urlObj.href, {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
-    console.timeEnd("domcontentloaded");
+    console.timeEnd("page goto waitUntil domcontentloaded");
 
     // Extract place name
     const finalUrl = page.url();
