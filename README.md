@@ -88,7 +88,7 @@ npm run dev
 
 - **Frontend**: Next.js 15, React, TailwindCSS
 - **Backend**: Next.js API Routes
-- **AI Model**: OpenAI GPT-4o-mini and Gemini-1.5-flash-8b
+- **AI Model**: OpenAI GPT-4o-mini and Gemini-2.0-flash-lite
 - **Web Scraping**: Puppeteer
 - **Deployment**: Vercel
 

@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     if (model === "gemini") {
       const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-flash-8b",
+        model: "gemini-2.0-flash-lite",
         generationConfig: {
           responseMimeType: "application/json",
           responseSchema: GEMINI_RESPONSE_SCHEMA,

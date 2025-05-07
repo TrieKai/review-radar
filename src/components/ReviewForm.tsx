@@ -45,7 +45,7 @@ const MODEL_OPTIONS: {
   {
     value: "gemini",
     label: "Gemini",
-    description: "Google Gemini-1.5-flash-8b 模型",
+    description: "Google Gemini-2.0-flash-lite 模型",
     maxTemp: 2,
   },
 ];
